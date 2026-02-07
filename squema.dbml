@@ -1,0 +1,222 @@
+// ---------------------------------------------------------
+// 1. GESTIÓN DE USUARIOS Y SEGURIDAD
+// ---------------------------------------------------------
+
+Table users {
+  id integer [primary key, increment]
+  username varchar [unique, note: 'Correo electrónico']
+  password_hash varchar
+  full_name varchar
+  role user_role [default: 'viewer'] // 'admin', 'league_manager', 'viewer'
+  created_at timestamp
+  is_active boolean [default: true]
+}
+
+Enum user_role {
+  super_admin
+  league_admin
+  viewer
+}
+
+// ---------------------------------------------------------
+// 2. ESTRUCTURA ORGANIZACIONAL (Ligas, Temporadas, Equipos)
+// ---------------------------------------------------------
+
+Table leagues {
+  id integer [primary key, increment]
+  name varchar
+  country varchar [default: 'Venezuela']
+  city varchar
+  logo_url varchar
+  admin_id integer // El usuario encargado de esta liga
+  created_at timestamp
+}
+
+Table seasons {
+  id integer [primary key, increment]
+  league_id integer
+  name varchar [note: 'Ej: Temporada 2025-2026']
+  start_date date
+  end_date date
+  is_active boolean
+}
+
+Table categories {
+  id integer [primary key, increment]
+  league_id integer
+  name varchar [note: 'Ej: Semillita, Pre-Infantil, Juvenil']
+  age_min integer
+  age_max integer
+}
+
+Table teams {
+  id integer [primary key, increment]
+  category_id integer
+  season_id integer
+  name varchar
+  short_name varchar [note: 'Ej: MAG para Magallanes']
+  logo_url varchar
+  manager_name varchar
+  won integer [default: 0]
+  lost integer [default: 0]
+  tied integer [default: 0]
+}
+
+// ---------------------------------------------------------
+// 3. JUGADORES Y ROSTERS (Histórico)
+// ---------------------------------------------------------
+
+Table players {
+  id integer [primary key, increment]
+  first_name varchar
+  last_name varchar
+  birth_date date
+  height_cm integer
+  weight_kg integer
+  bats_hand char(1) [note: 'R, L, S']
+  throws_hand char(1) [note: 'R, L']
+  bio text
+  photo_url varchar
+  created_at timestamp
+}
+
+// Tabla pivote para asignar jugadores a equipos por temporada
+// Esto permite que un jugador cambie de equipo el próximo año sin borrar su historial
+Table rosters {
+  id integer [primary key, increment]
+  team_id integer
+  player_id integer
+  jersey_number integer
+  position varchar [note: 'P, C, 1B, 2B, 3B, SS, LF, CF, RF']
+  is_active boolean [default: true]
+}
+
+// ---------------------------------------------------------
+// 4. CALENDARIO Y JUEGOS
+// ---------------------------------------------------------
+
+Table stadiums {
+  id integer [primary key, increment]
+  name varchar
+  location varchar
+}
+
+Table games {
+  id integer [primary key, increment]
+  season_id integer
+  category_id integer
+  home_team_id integer
+  away_team_id integer
+  stadium_id integer
+  game_date datetime
+  status game_status [default: 'scheduled']
+  
+  // Resultados finales (Cache para no sumar stats cada vez que se pide el score)
+  home_score integer [default: 0]
+  away_score integer [default: 0]
+  
+  // Detalles del cierre
+  winning_pitcher_id integer
+  losing_pitcher_id integer
+  save_pitcher_id integer
+}
+
+Enum game_status {
+  scheduled
+  live
+  finished
+  suspended
+  postponed
+}
+
+// ---------------------------------------------------------
+// 5. ESTADÍSTICAS DETALLADAS (Box Scores)
+// "La fuente de la verdad para cálculos y comparaciones"
+// ---------------------------------------------------------
+
+// Estadísticas de Bateo por Juego
+Table stats_batting {
+  id integer [primary key, increment]
+  game_id integer
+  team_id integer
+  player_id integer
+  
+  // Métricas
+  pa integer [note: 'Plate Appearances / Apariciones al plato']
+  ab integer [note: 'Turnos al bate oficiales']
+  r integer [note: 'Carreras anotadas']
+  h integer [note: 'Hits']
+  doubles integer [note: 'Dobles (2B)']
+  triples integer [note: 'Triples (3B)']
+  hr integer [note: 'Jonrones']
+  rbi integer [note: 'Carreras Impulsadas']
+  bb integer [note: 'Bases por bolas']
+  so integer [note: 'Ponches (Strikeouts)']
+  sb integer [note: 'Bases Robadas']
+  cs integer [note: 'Capturado en robo']
+  hbp integer [note: 'Golpeado por lanzador']
+  sf integer [note: 'Sacrificios Fly']
+  
+  // Notas
+  created_at timestamp
+}
+
+// Estadísticas de Pitcheo por Juego
+Table stats_pitching {
+  id integer [primary key, increment]
+  game_id integer
+  team_id integer
+  player_id integer
+  
+  // Métricas
+  ip_outs integer [note: 'Innings lanzados registrados como OUTS para precisión (ej: 1.1 innings = 4 outs)']
+  h integer [note: 'Hits permitidos']
+  r integer [note: 'Carreras totales']
+  er integer [note: 'Carreras limpias (clave para ERA)']
+  bb integer [note: 'Boletos otorgados']
+  so integer [note: 'Ponches propinados']
+  hr integer [note: 'Jonrones permitidos']
+  wp integer [note: 'Wild Pitch']
+  bk integer [note: 'Balks']
+  hbp integer [note: 'Golpeados']
+  
+  // Decisión del juego
+  decision pitch_decision [default: null] // W, L, S, H, null
+}
+
+Enum pitch_decision {
+  win
+  loss
+  save
+  hold
+}
+
+// ---------------------------------------------------------
+// RELACIONES (Foreign Keys)
+// ---------------------------------------------------------
+
+Ref: leagues.admin_id > users.id
+Ref: seasons.league_id > leagues.id
+Ref: categories.league_id > leagues.id
+
+Ref: teams.category_id > categories.id
+Ref: teams.season_id > seasons.id
+
+Ref: rosters.team_id > teams.id
+Ref: rosters.player_id > players.id
+
+Ref: games.season_id > seasons.id
+Ref: games.category_id > categories.id
+Ref: games.home_team_id > teams.id
+Ref: games.away_team_id > teams.id
+Ref: games.stadium_id > stadiums.id
+
+// Relaciones para estadísticas de bateo
+Ref: stats_batting.game_id > games.id
+Ref: stats_batting.player_id > players.id
+Ref: stats_batting.team_id > teams.id
+
+// Relaciones para estadísticas de pitcheo
+Ref: stats_pitching.game_id > games.id
+Ref: stats_pitching.player_id > players.id
+Ref: stats_pitching.team_id > teams.id
