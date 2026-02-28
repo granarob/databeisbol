@@ -1,0 +1,515 @@
+/* ─── COMPARACIÓN DE JUGADORES — Estilos ──────────────────── */
+
+/* Root */
+
+/* ─── SELECCIÓN A/B ───────────────────────────────────────── */
+.comp-selectors {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 1.5rem;
+    align-items: start;
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 700px) {
+    .comp-selectors {
+        grid-template-columns: 1fr;
+    }
+
+    .comp-vs-badge {
+        display: none;
+    }
+}
+
+.comp-vs-badge {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    color: var(--accent);
+    padding-top: 2rem;
+    text-align: center;
+    letter-spacing: 3px;
+}
+
+.player-selector {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    user-select: none;
+}
+
+.ps-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+}
+
+/* Jugador seleccionado */
+.ps-selected {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--bg-elevated);
+    padding: 1rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--accent);
+    position: relative;
+    box-shadow: 0 4px 15px rgba(230, 57, 70, 0.1);
+}
+
+.ps-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--bg-elevated), var(--bg-card));
+    border: 2px solid var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem;
+    color: var(--accent);
+    flex-shrink: 0;
+}
+
+.ps-info {
+    flex: 1;
+}
+
+.ps-name {
+    font-weight: 700;
+    color: var(--text);
+    font-size: 1rem;
+    line-height: 1.2;
+}
+
+.ps-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.35rem;
+}
+
+.ps-badge {
+    background: rgba(230, 57, 70, 0.1);
+    color: var(--accent);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.ps-team-name {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.ps-clear {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    transition: color var(--transition);
+    flex-shrink: 0;
+}
+
+.ps-clear:hover {
+    color: var(--accent);
+}
+
+/* Buscador */
+.ps-search-wrap {
+    position: relative;
+}
+
+.ps-input {
+    width: 100%;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.6rem 1rem;
+    color: var(--text);
+    font-size: 0.875rem;
+    transition: border-color var(--transition);
+    font-family: 'Inter', sans-serif;
+}
+
+.ps-input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.ps-hint {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    padding: 0.5rem 0;
+}
+
+.ps-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    z-index: 50;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.ps-option {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: none;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background var(--transition);
+    font-family: 'Inter', sans-serif;
+    text-align: left;
+}
+
+.ps-option:last-child {
+    border-bottom: none;
+}
+
+.ps-option:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.ps-opt-avatar {
+    width: 32px;
+    height: 32px;
+    background: var(--bg-card);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--accent);
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.ps-opt-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.ps-opt-base {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ps-opt-name {
+    color: var(--text);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.ps-opt-meta {
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    margin-top: 1px;
+}
+
+.ps-opt-pos {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: var(--text-muted);
+    background: var(--bg-card);
+    padding: 2px 6px;
+    border-radius: 4px;
+    opacity: 0.8;
+}
+
+.animate-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ─── FILTROS DE MÉTRICAS ─────────────────────────────────── */
+.metric-filters {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    padding: 1rem 1.25rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+}
+
+.mf-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-right: 0.25rem;
+}
+
+.mf-chip {
+    padding: 0.4rem 1rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition);
+    user-select: none;
+}
+
+.mf-chip:hover {
+    border-color: var(--accent);
+    color: var(--text);
+}
+
+.mf-active {
+    background: rgba(230, 57, 70, 0.15);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+/* ─── TABLA CARA A CARA ───────────────────────────────────── */
+.h2h-wrap {
+    margin-top: 1rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.h2h-header {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, rgba(230, 57, 70, 0.05), transparent);
+    border-bottom: 1px solid var(--border);
+}
+
+.h2h-player {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.h2h-player-b {
+    align-items: center;
+}
+
+.h2h-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--bg-elevated);
+    border: 2px solid var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    color: var(--accent);
+}
+
+.h2h-avatar-b {
+    border-color: var(--blue);
+    color: var(--blue);
+}
+
+.h2h-pname {
+    font-weight: 700;
+    color: var(--text);
+    font-size: 0.95rem;
+    text-align: center;
+}
+
+.h2h-center-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.5rem;
+    color: var(--text-muted);
+    letter-spacing: 4px;
+    padding: 0 1.5rem;
+}
+
+.h2h-table {
+    padding: 0;
+}
+
+.h2h-row {
+    display: grid;
+    grid-template-columns: 1fr 180px 1fr;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    transition: background var(--transition);
+}
+
+.h2h-row:last-child {
+    border-bottom: none;
+}
+
+.h2h-row:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.h2h-val {
+    font-family: monospace;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-dim);
+}
+
+.h2h-val:first-child {
+    text-align: left;
+}
+
+.h2h-val:last-child {
+    text-align: right;
+}
+
+.h2h-win {
+    color: var(--gold) !important;
+    font-size: 1.25rem;
+}
+
+.h2h-metric {
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+}
+
+.h2h-metric-desc {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--text-muted);
+    opacity: 0.7;
+    margin-top: 0.1rem;
+}
+
+/* ─── GRÁFICO DE BARRAS ───────────────────────────────────── */
+.bars-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.bar-chart {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.25rem;
+}
+
+.bar-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+}
+
+.bar-desc {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.bar-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.bar-player-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    min-width: 52px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.bar-track {
+    flex: 1;
+    height: 10px;
+    background: var(--bg-elevated);
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.5s ease;
+}
+
+.bar-a {
+    background: linear-gradient(90deg, var(--accent-dim), var(--accent));
+}
+
+.bar-b {
+    background: linear-gradient(90deg, #1d4ed8, var(--blue));
+}
+
+.bar-winner {
+    filter: brightness(1.2);
+    box-shadow: 0 0 8px currentColor;
+}
+
+.bar-value {
+    font-family: monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-dim);
+    min-width: 48px;
+    text-align: right;
+}
+
+.bar-value-winner {
+    color: var(--gold);
+}
+
+/* ─── EMPTY STATE ─────────────────────────────────────────── */
+.comp-empty {
+    text-align: center;
+    padding: 4rem 1rem;
+    color: var(--text-muted);
+    font-size: 1rem;
+}

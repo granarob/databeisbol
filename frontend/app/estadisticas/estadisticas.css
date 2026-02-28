@@ -1,0 +1,170 @@
+/* ─── ESTADÍSTICAS AVANZADAS — Estilos ───────────────────── */
+
+.stats-filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.25rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.filter-group label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+}
+
+.filter-group select {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.65rem 1rem;
+    color: var(--text);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all var(--transition);
+    outline: none;
+}
+
+.filter-group select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(230, 57, 70, 0.1);
+}
+
+.filter-group select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Tablas Ordenables */
+.sortable-th {
+    cursor: pointer;
+    user-select: none;
+    transition: background var(--transition);
+}
+
+.sortable-th:hover {
+    background: var(--bg-card) !important;
+    color: var(--text) !important;
+}
+
+.sortable-th.active {
+    color: var(--accent) !important;
+}
+
+.th-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sort-icon {
+    font-size: 0.7rem;
+    opacity: 0.5;
+}
+
+.sortable-th.active .sort-icon {
+    opacity: 1;
+}
+
+/* Loading State */
+.stats-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 5rem 0;
+    gap: 1rem;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--bg-elevated);
+    border-top: 4px solid var(--accent);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.stats-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 3.5rem;
+}
+
+@media (max-width: 768px) {
+    .stats-filters {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Reports Bar */
+.reports-bar {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: -1rem;
+    justify-content: flex-end;
+}
+
+.report-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.25rem;
+    border-radius: var(--radius);
+    font-weight: 700;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all var(--transition);
+    border: 1px solid transparent;
+    font-family: 'Inter', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.report-btn.pdf {
+    background: rgba(230, 57, 70, 0.1);
+    color: var(--accent);
+    border-color: rgba(230, 57, 70, 0.2);
+}
+
+.report-btn.pdf:hover {
+    background: var(--accent);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(230, 57, 70, 0.3);
+}
+
+.report-btn.excel {
+    background: rgba(46, 196, 182, 0.1);
+    color: #2ec4b6;
+    border-color: rgba(46, 196, 182, 0.2);
+}
+
+.report-btn.excel:hover {
+    background: #2ec4b6;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(46, 196, 182, 0.3);
+}

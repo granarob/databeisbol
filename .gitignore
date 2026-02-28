@@ -1,0 +1,53 @@
+# ─── Python / Django ────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+pip-wheel-metadata/
+
+# Entorno virtual
+.venv/
+venv/
+env/
+ENV/
+
+# Variables de entorno (NUNCA subir al repo)
+.env
+.env.local
+.env.production
+
+# Base de datos SQLite local
+db.sqlite3
+*.sqlite3
+
+# Archivos estáticos recolectados
+staticfiles/
+static_root/
+
+# ─── Next.js / Node.js ──────────────────────────────────────────
+frontend/node_modules/
+frontend/.next/
+frontend/.env.local
+frontend/.env.production.local
+frontend/out/
+
+# ─── IDE / OS ───────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+*.log
+
+# ─── Testing ────────────────────────────────────────────────────
+.coverage
+htmlcov/
+.pytest_cache/

@@ -1,0 +1,13 @@
+{
+    "framework": "nextjs",
+    "buildCommand": "cd frontend && npm run build",
+    "outputDirectory": "frontend/.next",
+    "installCommand": "cd frontend && npm install",
+    "devCommand": "cd frontend && npm run dev",
+    "env": {
+        "NEXT_PUBLIC_API_URL": "https://tu-backend.railway.app/api/v1"
+    },
+    "regions": [
+        "iad1"
+    ]
+}
