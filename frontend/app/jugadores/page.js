@@ -9,23 +9,23 @@ export default async function JugadoresPage() {
 
     return (
         <>
-            <section className="hero-strip">
+            <section className="hero-strip animate-in fade-in">
                 <div className="container">
-                    <h1>Jugadores</h1>
-                    <p>{players.length} jugadores registrados</p>
+                    <h1 className="animate-in slide-up delay-100">Jugadores</h1>
+                    <p className="animate-in slide-up delay-200">{players.length} jugadores registrados</p>
                 </div>
             </section>
 
             <div className="page-content">
                 <div className="container">
                     {players.length === 0 ? (
-                        <div className="empty-state">
+                        <div className="empty-state animate-in slide-up delay-300">
                             <div className="icon">👤</div>
                             <p>No hay jugadores registrados aún</p>
                         </div>
                     ) : (
-                        <div className="grid-2">
-                            {players.map(player => {
+                        <div className="grid-2 animate-in slide-up delay-300">
+                            {players.map((player, index) => {
                                 const initials = `${player.first_name?.[0] ?? ''}${player.last_name?.[0] ?? ''}`;
                                 const handInfo = [
                                     player.bats_hand && `Batea: ${player.bats_hand}`,
@@ -34,7 +34,7 @@ export default async function JugadoresPage() {
 
                                 return (
                                     <Link key={player.id} href={`/jugadores/${player.id}`} style={{ textDecoration: 'none' }}>
-                                        <div className="player-card">
+                                        <div className={`player-card animate-in fade-in delay-${(index % 5 + 1) * 100}`}>
                                             <div className="player-avatar">{initials}</div>
                                             <div className="player-info">
                                                 <div className="player-full-name">{player.full_name}</div>

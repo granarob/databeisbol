@@ -272,10 +272,10 @@ export default function EstadisticasPage() {
 
     return (
         <>
-            <section className="hero-strip">
+            <section className="hero-strip animate-in fade-in">
                 <div className="container">
-                    <h1>Estadísticas <span>Avanzadas</span></h1>
-                    <p>Filtra por división y ordena por cualquier métrica líder</p>
+                    <h1 className="animate-in slide-up delay-100">Estadísticas <span>Avanzadas</span></h1>
+                    <p className="animate-in slide-up delay-200">Filtra por división y ordena por cualquier métrica líder</p>
                 </div>
             </section>
 
@@ -283,7 +283,7 @@ export default function EstadisticasPage() {
                 <div className="container">
 
                     {/* BARRA DE FILTROS */}
-                    <div className="stats-filters">
+                    <div className="stats-filters animate-in slide-up delay-300">
                         <div className="filter-group">
                             <label>Liga</label>
                             <select name="league" value={filters.league} onChange={handleFilterChange}>

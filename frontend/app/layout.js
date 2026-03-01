@@ -7,18 +7,18 @@ export const metadata = {
 
 function Navbar() {
   return (
-    <nav className="navbar">
+    <nav className="navbar animate-in slide-up">
       <div className="container navbar-inner">
-        <a href="/" className="navbar-logo">
-          ⚾ BEISBOL<span>DATA</span>
+        <a href="/" className="navbar-logo animate-in fade-in delay-100">
+          ⚾ BEISBOL<span style={{ color: 'var(--accent)' }}>DATA</span>
         </a>
         <ul className="navbar-links">
-          <li><a href="/">Inicio</a></li>
-          <li><a href="/equipos">Equipos</a></li>
-          <li><a href="/estadisticas">Estadísticas</a></li>
-          <li><a href="/jugadores">Jugadores</a></li>
-          <li><a href="/calendario">Calendario</a></li>
-          <li><a href="/comparar" style={{ color: 'var(--accent)' }}>🆚 Comparar</a></li>
+          <li className="animate-in fade-in delay-200"><a href="/">Inicio</a></li>
+          <li className="animate-in fade-in delay-300"><a href="/equipos">Equipos</a></li>
+          <li className="animate-in fade-in delay-400"><a href="/estadisticas">Estadísticas</a></li>
+          <li className="animate-in fade-in delay-500"><a href="/jugadores">Jugadores</a></li>
+          <li className="animate-in fade-in delay-500"><a href="/calendario">Calendario</a></li>
+          <li className="animate-in fade-in delay-500"><a href="/comparar" style={{ color: 'var(--accent)' }}>🆚 Comparar</a></li>
         </ul>
       </div>
     </nav>

@@ -18,7 +18,7 @@ function GameCard({ game }) {
   const isFinished = game.status === 'finished';
 
   return (
-    <div className="game-card">
+    <div className="game-card animate-in slide-up delay-200">
       <div className="game-card-header">
         <span className="game-card-date">{dateStr}</span>
         <StatusBadge status={game.status} />
@@ -109,10 +109,10 @@ export default async function HomePage() {
 
   return (
     <>
-      <section className="hero-strip">
+      <section className="hero-strip animate-in fade-in">
         <div className="container">
-          <h1>Béisbol Menor<br /><span>Venezuela</span></h1>
-          <p>Estadísticas, resultados y líderes de las ligas en tiempo real</p>
+          <h1 className="animate-in slide-up delay-100">Béisbol Menor<br /><span>Venezuela</span></h1>
+          <p className="animate-in slide-up delay-200">Estadísticas, resultados y líderes de las ligas en tiempo real</p>
         </div>
       </section>
 
@@ -120,7 +120,7 @@ export default async function HomePage() {
         <div className="container">
           <div className="grid-sidebar">
             {/* Resultados recientes */}
-            <div>
+            <div className="animate-in slide-up delay-300">
               <h2 className="section-title">Resultados Recientes</h2>
               {games.length === 0 ? (
                 <div className="empty-state">
@@ -135,7 +135,7 @@ export default async function HomePage() {
             </div>
 
             {/* Tabla de posiciones */}
-            <div>
+            <div className="animate-in slide-up delay-400">
               <h2 className="section-title">Tabla de Posiciones</h2>
               <StandingsTable standings={standingsData} />
             </div>

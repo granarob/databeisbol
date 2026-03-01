@@ -9,6 +9,7 @@
  * 4. Ver tabla Cara a Cara y gráfico de barras SVG
  */
 import { useState, useEffect, useCallback } from 'react';
+import { BarChart, RadarChart } from '@/components/SvgCharts';
 import './comparar.css';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api/v1';
@@ -173,42 +174,40 @@ function PlayerSelector({ label, selected, onSelect, otherSelectedId }) {
     );
 }
 
-// ─── Gráfico de Barras SVG ────────────────────────────────────
-function BarChart({ metricKey, metricLabel, valueA, valueB, nameA, nameB, higherIsBetter }) {
-    const a = parseFloat(valueA) || 0;
-    const b = parseFloat(valueB) || 0;
-    const max = Math.max(a, b, 0.001);
-    const pctA = (a / max) * 100;
-    const pctB = (b / max) * 100;
+// ─── Helpers de Normalización para Radar ──────────────────────
+function getRadarProfile(stats) {
+    if (!stats) return { labels: [], data: [] };
 
-    const winA = higherIsBetter ? a >= b : a <= b;
-    const winB = higherIsBetter ? b >= a : b <= a;
-
-    return (
-        <div className="bar-chart">
-            <div className="bar-title">{metricLabel} <span className="bar-desc">— {metricKey}</span></div>
-            <div className="bar-row">
-                <span className="bar-player-label">{nameA?.split(' ')[0]}</span>
-                <div className="bar-track">
-                    <div
-                        className={`bar-fill bar-a${winA ? ' bar-winner' : ''}`}
-                        style={{ width: `${pctA}%` }}
-                    />
-                </div>
-                <span className={`bar-value${winA ? ' bar-value-winner' : ''}`}>{valueA}</span>
-            </div>
-            <div className="bar-row">
-                <span className="bar-player-label">{nameB?.split(' ')[0]}</span>
-                <div className="bar-track">
-                    <div
-                        className={`bar-fill bar-b${winB ? ' bar-winner' : ''}`}
-                        style={{ width: `${pctB}%` }}
-                    />
-                </div>
-                <span className={`bar-value${winB ? ' bar-value-winner' : ''}`}>{valueB}</span>
-            </div>
-        </div>
-    );
+    if (stats.batting && stats.batting.total_ab > 0) {
+        const b = stats.batting;
+        const ab = b.total_ab || 1;
+        // Bateo: Contacto, Poder, Velocidad, Disciplina, Producción
+        return {
+            labels: ['Contacto', 'Poder', 'Velocidad', 'Disciplina', 'Producción'],
+            data: [
+                Math.min((b.avg || 0) * 250, 100),           // 0.400 = 100
+                Math.min(((b.total_hr || 0) / ab) * 800, 100), // ~1 HR cada 12 AB = 100
+                Math.min((b.total_sb || 0) * 8, 100),        // 12 SB = 100
+                Math.min(((b.total_bb || 0) / (b.total_so || 1)) * 80, 100),
+                Math.min(((b.total_rbi || 0) / ab) * 400, 100)
+            ]
+        };
+    } else if (stats.pitching && stats.pitching.total_ip_outs > 0) {
+        const p = stats.pitching;
+        const ip = (p.total_ip_outs || 1) / 3;
+        // Pitcheo: Control, Poder, Eficacia, WHIP, Resistencia
+        return {
+            labels: ['Control', 'Poder', 'Eficacia', 'WHIP', 'Resistencia'],
+            data: [
+                Math.max(100 - (p.total_bb / ip) * 20, 0),    // Menos BB = más Control
+                Math.min((p.total_so / ip) * 8, 100),         // SO por entrada
+                Math.max(100 - (p.era * 10), 0),              // Menos ERA = más Eficacia
+                Math.max(100 - (p.whip * 40), 0),             // Menos WHIP = mejor
+                Math.min(ip * 15, 100)                        // Más IP
+            ]
+        };
+    }
+    return { labels: ['?', '?', '?', '?', '?'], data: [0, 0, 0, 0, 0] };
 }
 
 // ─── Tabla Cara a Cara ────────────────────────────────────────
@@ -291,10 +290,10 @@ export default function CompararPage() {
     return (
         <div className="comparar-root">
             {/* Hero strip */}
-            <section className="hero-strip">
+            <section className="hero-strip animate-in fade-in">
                 <div className="container">
-                    <h1>🆚 Comparación de <span>Jugadores</span></h1>
-                    <p>Selecciona dos jugadores y compara sus estadísticas cara a cara</p>
+                    <h1 className="animate-in slide-up delay-100">🆚 Comparación de <span>Jugadores</span></h1>
+                    <p className="animate-in slide-up delay-200">Selecciona dos jugadores y compara sus estadísticas cara a cara</p>
                 </div>
             </section>
 
@@ -302,14 +301,14 @@ export default function CompararPage() {
                 <div className="container">
 
                     {/* Selección de jugadores */}
-                    <div className="comp-selectors">
+                    <div className="comp-selectors animate-in slide-up delay-300">
                         <PlayerSelector label="Jugador A" selected={playerA} onSelect={setPlayerA} otherSelectedId={playerB?.id} />
                         <div className="comp-vs-badge">VS</div>
                         <PlayerSelector label="Jugador B" selected={playerB} onSelect={setPlayerB} otherSelectedId={playerA?.id} />
                     </div>
 
                     {/* Filtros de métricas */}
-                    <div className="metric-filters">
+                    <div className="metric-filters animate-in slide-up delay-400">
                         <span className="mf-label">Métricas a comparar:</span>
                         {METRIC_GROUPS.map(g => (
                             <label key={g.id} className={`mf-chip${selectedGroups[g.id] ? ' mf-active' : ''}`}>
@@ -326,9 +325,10 @@ export default function CompararPage() {
 
                     {/* Tabs de vista */}
                     {canCompare && (
-                        <div className="tabs" style={{ marginTop: '1.5rem' }}>
-                            <button className={`tab-btn${view === 'table' ? ' active' : ''}`} onClick={() => setView('table')}>📊 Tabla Cara a Cara</button>
-                            <button className={`tab-btn${view === 'bars' ? ' active' : ''}`} onClick={() => setView('bars')}>📈 Gráfico de Barras</button>
+                        <div className="tabs animate-in fade-in" style={{ marginTop: '1.5rem' }}>
+                            <button className={`tab-btn${view === 'table' ? ' active' : ''}`} onClick={() => setView('table')}>📊 Tabla H2H</button>
+                            <button className={`tab-btn${view === 'bars' ? ' active' : ''}`} onClick={() => setView('bars')}>📈 Barras</button>
+                            <button className={`tab-btn${view === 'radar' ? ' active' : ''}`} onClick={() => setView('radar')}>🕸️ Scouting Radar</button>
                         </div>
                     )}
 
@@ -352,25 +352,26 @@ export default function CompararPage() {
 
                     {/* Vista: Tabla Cara a Cara */}
                     {canCompare && view === 'table' && activeMetrics.length > 0 && (
-                        <HeadToHeadTable
-                            statsA={statsA}
-                            statsB={statsB}
-                            playerA={playerA}
-                            playerB={playerB}
-                            selectedMetrics={activeMetrics}
-                        />
+                        <div className="animate-in slide-up">
+                            <HeadToHeadTable
+                                statsA={statsA}
+                                statsB={statsB}
+                                playerA={playerA}
+                                playerB={playerB}
+                                selectedMetrics={activeMetrics}
+                            />
+                        </div>
                     )}
 
                     {/* Vista: Gráfico de Barras */}
                     {canCompare && view === 'bars' && activeMetrics.length > 0 && (
-                        <div className="bars-grid">
+                        <div className="bars-grid animate-in slide-up">
                             {activeMetrics.map(m => {
                                 const rawA = getStatValue(statsA, m.key);
                                 const rawB = getStatValue(statsB, m.key);
                                 return (
                                     <BarChart
                                         key={m.key}
-                                        metricKey={m.key}
                                         metricLabel={m.label}
                                         valueA={m.format(rawA)}
                                         valueB={m.format(rawB)}
@@ -380,6 +381,25 @@ export default function CompararPage() {
                                     />
                                 );
                             })}
+                        </div>
+                    )}
+
+                    {/* Vista: Radar Chart */}
+                    {canCompare && view === 'radar' && (
+                        <div className="radar-container animate-in">
+                            {(() => {
+                                const profA = getRadarProfile(statsA);
+                                const profB = getRadarProfile(statsB);
+                                return (
+                                    <RadarChart
+                                        labels={profA.labels}
+                                        dataA={profA.data}
+                                        dataB={profB.data}
+                                        nameA={playerA.full_name}
+                                        nameB={playerB.full_name}
+                                    />
+                                );
+                            })()}
                         </div>
                     )}
 

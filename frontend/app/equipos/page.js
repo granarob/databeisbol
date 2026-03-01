@@ -9,25 +9,25 @@ export default async function EquiposPage() {
 
     return (
         <>
-            <section className="hero-strip">
+            <section className="hero-strip animate-in fade-in">
                 <div className="container">
-                    <h1>Equipos</h1>
-                    <p>{teams.length} equipos registrados en el sistema</p>
+                    <h1 className="animate-in slide-up delay-100">Equipos</h1>
+                    <p className="animate-in slide-up delay-200">{teams.length} equipos registrados en el sistema</p>
                 </div>
             </section>
 
             <div className="page-content">
                 <div className="container">
                     {teams.length === 0 ? (
-                        <div className="empty-state">
+                        <div className="empty-state animate-in slide-up delay-300">
                             <div className="icon">🏟</div>
                             <p>No hay equipos registrados aún</p>
                         </div>
                     ) : (
-                        <div className="grid-3">
-                            {teams.map(team => (
+                        <div className="grid-3 animate-in slide-up delay-300">
+                            {teams.map((team, index) => (
                                 <Link key={team.id} href={`/equipos/${team.id}`} style={{ textDecoration: 'none' }}>
-                                    <div className="team-card">
+                                    <div className={`team-card animate-in fade-in delay-${(index % 5 + 1) * 100}`}>
                                         <div className="team-logo-placeholder">
                                             {(team.short_name || team.name || '?').slice(0, 3).toUpperCase()}
                                         </div>

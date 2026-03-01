@@ -194,16 +194,16 @@
 
 ### 🆚 2.1 Módulo de Comparación de Jugadores
 
-- [ ] Buscador de jugadores (debe buscar en `players` filtrando por `category_id` de la misma categoría)
-- [ ] Selector Jugador A y Jugador B
-- [ ] Selector de campos a comparar (checkboxes):
+- [x] Buscador de jugadores (debe buscar en `players` filtrando por `category_id` de la misma categoría)
+- [x] Selector Jugador A y Jugador B
+- [x] Selector de campos a comparar (checkboxes):
   - **Fuerza:** `hr`, `slg`, `rbi`
   - **Contacto:** `avg`, `h`, `so`
   - **Velocidad:** `sb`, `cs`
   - **Pitcheo:** `era`, `whip`, `so`, `bb`
-- [ ] Vista "Cara a Cara" — tabla comparativa lado a lado
-- [ ] Gráfico de barras simple por métrica seleccionada
-- [ ] *(Opcional)* Radar Chart con las métricas elegidas
+- [x] Vista "Cara a Cara" — tabla comparativa lado a lado
+- [x] Gráfico de barras simple por métrica seleccionada
+- [x] *(Opcional)* Radar Chart con las métricas elegidas
 
 ---
 
@@ -225,13 +225,13 @@
 
 ### ⚡ 2.4 Performance — Redis Cache
 
-- [ ] Integrar **Redis** como capa de caché
-- [ ] Cachear:
+- [x] Integrar **Redis** como capa de caché
+- [x] Cachear:
   - Tablas de líderes (bateo/pitcheo) por `category_id` y `season_id`
   - Tabla de posiciones por categoría
   - Stats acumuladas por jugador en la temporada activa
-- [ ] Invalidación automática de caché al registrar un nuevo box score o cerrar un juego
-- [ ] TTL (tiempo de vida) configurado según frecuencia de actualización (Ej: 1 hora)
+- [x] Invalidación automática de caché al registrar un nuevo box score o cerrar un juego
+- [x] TTL (tiempo de vida) configurado según frecuencia de actualización (Ej: 1 hora)
 
 ---
 

@@ -5,7 +5,9 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
+from django.core.cache import cache
 from django.db.models import Sum, Avg, F, FloatField, ExpressionWrapper, Count, Q
+
 
 from .models import (
     User, League, Season, Category,
@@ -132,9 +134,19 @@ class TeamViewSet(viewsets.ModelViewSet):
         GET /api/teams/standings/?season=<id>&category=<id>
         Devuelve la tabla de posiciones ordenada por victorias.
         """
+        season_id   = request.query_params.get('season', '')
+        category_id = request.query_params.get('category', '')
+        
+        cache_key = f"standings_{season_id}_{category_id}"
+        cached = cache.get(cache_key)
+        if cached:
+            return Response(cached)
+
         qs = self.get_queryset().order_by('-won', 'lost')
         serializer = TeamSerializer(qs, many=True)
-        return Response(serializer.data)
+        data = serializer.data
+        cache.set(cache_key, data, timeout=3600)
+        return Response(data)
 
 
 # ===========================================================
@@ -308,6 +320,8 @@ class GameViewSet(viewsets.ModelViewSet):
         serializer = GameStatusSerializer(game, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
+            if serializer.validated_data.get('status') == Game.Status.FINISHED:
+                cache.clear()
             return Response(GameSerializer(game).data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -344,17 +358,34 @@ class StatsBattingViewSet(viewsets.ModelViewSet):
             qs = qs.filter(team_id=team_id)
         return qs
 
+    def perform_create(self, serializer):
+        serializer.save()
+        cache.clear()
+
+    def perform_update(self, serializer):
+        serializer.save()
+        cache.clear()
+
+    def perform_destroy(self, instance):
+        instance.delete()
+        cache.clear()
+
     @action(detail=False, methods=['get'], url_path='leaders')
     def leaders(self, request):
         """
         GET /api/stats/batting/leaders/?season=<id>&category=<id>&stat=avg&limit=10
         Líderes de bateo por el stat solicitado.
         """
-        season_id   = request.query_params.get('season')
-        category_id = request.query_params.get('category')
+        season_id   = request.query_params.get('season', '')
+        category_id = request.query_params.get('category', '')
         stat        = request.query_params.get('stat', 'avg').replace('total_', '')
         limit       = int(request.query_params.get('limit', 10))
         offset      = int(request.query_params.get('offset', 0))
+
+        cache_key = f"batters_{season_id}_{category_id}_{stat}_{limit}_{offset}"
+        cached = cache.get(cache_key)
+        if cached:
+            return Response(cached)
 
         VALID_STATS = {'avg', 'hr', 'rbi', 'h', 'bb', 'sb', 'so', 'ab', 'pa', 'r', '2b', '3b', 'hbp', 'sf'}
         if stat not in VALID_STATS:
@@ -388,10 +419,12 @@ class StatsBattingViewSet(viewsets.ModelViewSet):
         sort_key = 'avg' if stat == 'avg' else f'total_{stat}'
         results.sort(key=lambda x: x.get(sort_key, 0), reverse=True)
 
-        return Response({
+        data = {
             'count': len(results),
             'results': results[offset : offset + limit]
-        })
+        }
+        cache.set(cache_key, data, timeout=3600)
+        return Response(data)
 
 
 class StatsPitchingViewSet(viewsets.ModelViewSet):
@@ -416,17 +449,34 @@ class StatsPitchingViewSet(viewsets.ModelViewSet):
             qs = qs.filter(team_id=team_id)
         return qs
 
+    def perform_create(self, serializer):
+        serializer.save()
+        cache.clear()
+
+    def perform_update(self, serializer):
+        serializer.save()
+        cache.clear()
+
+    def perform_destroy(self, instance):
+        instance.delete()
+        cache.clear()
+
     @action(detail=False, methods=['get'], url_path='leaders')
     def leaders(self, request):
         """
         GET /api/stats/pitching/leaders/?season=<id>&category=<id>&stat=era&limit=10
         Líderes de pitcheo.
         """
-        season_id   = request.query_params.get('season')
-        category_id = request.query_params.get('category')
+        season_id   = request.query_params.get('season', '')
+        category_id = request.query_params.get('category', '')
         stat        = request.query_params.get('stat', 'era').replace('total_', '')
         limit       = int(request.query_params.get('limit', 10))
         offset      = int(request.query_params.get('offset', 0))
+
+        cache_key = f"pitchers_{season_id}_{category_id}_{stat}_{limit}_{offset}"
+        cached = cache.get(cache_key)
+        if cached:
+            return Response(cached)
 
         VALID_STATS = {'era', 'whip', 'so', 'bb', 'h', 'r', 'er', 'wins', 'ip_outs'}
         if stat not in VALID_STATS:
@@ -467,7 +517,9 @@ class StatsPitchingViewSet(viewsets.ModelViewSet):
             key = 'wins' if stat == 'wins' else (f'total_{stat}' if f'total_{stat}' in (agg[0] if agg else {}) else stat)
             results.sort(key=lambda x: x.get(key, 0), reverse=True)
 
-        return Response({
+        data = {
             'count': len(results),
             'results': results[offset : offset + limit]
-        })
+        }
+        cache.set(cache_key, data, timeout=3600)
+        return Response(data)

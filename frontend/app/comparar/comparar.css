@@ -421,46 +421,48 @@
     margin-top: 0.1rem;
 }
 
-/* ─── GRÁFICO DE BARRAS ───────────────────────────────────── */
+/* ─── GRÁFICOS SVG (LIBRARY) ──────────────────────────────── */
 .bars-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1rem;
-    margin-top: 1rem;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
 }
 
 .bar-chart {
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    padding: 1rem 1.25rem;
+    padding: 1.25rem;
+    transition: transform 0.3s ease;
+}
+
+.bar-chart:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255, 255, 255, 0.1);
 }
 
 .bar-title {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     font-weight: 700;
     color: var(--text);
-    margin-bottom: 0.75rem;
-}
-
-.bar-desc {
-    font-size: 0.72rem;
-    color: var(--text-muted);
-    font-weight: 400;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .bar-row {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 0.5rem;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
 }
 
 .bar-player-label {
     font-size: 0.75rem;
     font-weight: 700;
     color: var(--text-muted);
-    min-width: 52px;
+    min-width: 60px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -468,16 +470,17 @@
 
 .bar-track {
     flex: 1;
-    height: 10px;
+    height: 12px;
     background: var(--bg-elevated);
-    border-radius: 5px;
+    border-radius: 6px;
     overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.03);
 }
 
 .bar-fill {
     height: 100%;
-    border-radius: 5px;
-    transition: width 0.5s ease;
+    border-radius: 6px;
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .bar-a {
@@ -490,20 +493,113 @@
 
 .bar-winner {
     filter: brightness(1.2);
-    box-shadow: 0 0 8px currentColor;
+    box-shadow: 0 0 10px rgba(230, 57, 70, 0.3);
 }
 
 .bar-value {
-    font-family: monospace;
-    font-size: 0.85rem;
-    font-weight: 700;
+    font-family: 'Inter', monospace;
+    font-size: 0.9rem;
+    font-weight: 800;
     color: var(--text-dim);
-    min-width: 48px;
+    min-width: 50px;
     text-align: right;
 }
 
 .bar-value-winner {
     color: var(--gold);
+}
+
+/* Radar Chart */
+.radar-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    margin-top: 1.5rem;
+    min-height: 450px;
+}
+
+.radar-chart-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.radar-svg {
+    overflow: visible;
+}
+
+.radar-grid-line {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.08);
+    stroke-width: 1;
+}
+
+.radar-axis-line {
+    stroke: rgba(255, 255, 255, 0.15);
+    stroke-width: 1;
+    stroke-dasharray: 4;
+}
+
+.radar-area-a {
+    fill: rgba(230, 57, 70, 0.35);
+    stroke: var(--accent);
+    stroke-width: 2.5;
+    transition: all 0.5s ease;
+}
+
+.radar-area-b {
+    fill: rgba(29, 78, 216, 0.35);
+    stroke: var(--blue);
+    stroke-width: 2.5;
+    transition: all 0.5s ease;
+}
+
+.radar-dot-a {
+    fill: var(--accent);
+    stroke: white;
+    stroke-width: 1;
+}
+
+.radar-label {
+    fill: var(--text-muted);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.radar-legend {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-dim);
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+}
+
+.dot-a {
+    background: var(--accent);
+}
+
+.dot-b {
+    background: var(--blue);
 }
 
 /* ─── EMPTY STATE ─────────────────────────────────────────── */

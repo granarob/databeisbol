@@ -35,24 +35,24 @@ export default async function CalendarioPage() {
 
     return (
         <>
-            <section className="hero-strip">
+            <section className="hero-strip animate-in fade-in">
                 <div className="container">
-                    <h1>Calendario</h1>
-                    <p>{games.length} juegos programados</p>
+                    <h1 className="animate-in slide-up delay-100">Calendario</h1>
+                    <p className="animate-in slide-up delay-200">{games.length} juegos programados</p>
                 </div>
             </section>
 
             <div className="page-content">
                 <div className="container">
                     {dates.length === 0 ? (
-                        <div className="empty-state">
+                        <div className="empty-state animate-in slide-up delay-300">
                             <div className="icon">📅</div>
                             <p>No hay juegos programados aún</p>
                         </div>
                     ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                            {dates.map(date => (
-                                <div key={date}>
+                            {dates.map((date, index) => (
+                                <div key={date} className={`animate-in slide-up delay-${(index % 5 + 1) * 100}`}>
                                     {/* Encabezado de fecha */}
                                     <div style={{
                                         padding: '0.6rem 1rem',
