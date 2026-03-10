@@ -13,6 +13,7 @@ export default function CrudPage({
     fields,        // [{key, label, type, required?, options?, placeholder?}]
     defaultValues, // valores iniciales del formulario
     transform,     // fn(item) => item modificado para mostrar
+    extraActions,  // fn(item) => JSX — botones extra por fila (antes de Editar/Eliminar)
 }) {
     const { authFetch } = useAuth();
     const [items, setItems] = useState([]);
@@ -119,6 +120,7 @@ export default function CrudPage({
                                     ))}
                                     <td>
                                         <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                            {extraActions && extraActions(item)}
                                             <button className="btn btn-secondary btn-sm" onClick={() => openEdit(item)}>✏️ Editar</button>
                                             <button className="btn btn-danger btn-sm" onClick={() => handleDelete(item.id)}>🗑 Eliminar</button>
                                         </div>

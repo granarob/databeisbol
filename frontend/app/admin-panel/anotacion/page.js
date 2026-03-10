@@ -2,14 +2,15 @@
 /**
  * Hoja de Anotación Digital — carga de stats post-juego.
  * Flujo:
- *   1. Seleccionar un juego (status != finished)
+ *   1. Seleccionar un juego (status = scheduled o live) — también pre-carga desde ?game=ID
  *   2. Cargar roster del equipo local y visitante
- *   3. Ingresar stats de bateo por jugador
+ *   3. Ingresar stats de bateo por jugador (con totales automáticos)
  *   4. Ingresar stats de pitcheo por jugador
  *   5. Seleccionar decisiones del juego (W/L/S pitcher)
  *   6. Guardar todo → el backend recalcula scores y standings
  */
 import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 
 const BATTING_COLS = ['pa', 'ab', 'r', 'h', '2b', '3b', 'hr', 'rbi', 'bb', 'so', 'sb', 'cs', 'hbp', 'sf'];
@@ -29,8 +30,14 @@ const DECISIONS = [
 function emptyBatting() { return Object.fromEntries(BATTING_KEYS.map(k => [k, 0])); }
 function emptyPitching() { return Object.fromEntries(PITCHING_KEYS.map(k => [k, 0])); }
 
+/** Suma totales de bateo para una fila de totales del equipo */
+function calcTotals(roster, batting, key) {
+    return roster.reduce((sum, r) => sum + (batting[r.player]?.[key] ?? 0), 0);
+}
+
 export default function AnotacionPage() {
     const { authFetch } = useAuth();
+    const searchParams = useSearchParams();
 
     // Paso 1: juego
     const [games, setGames] = useState([]);
@@ -42,8 +49,8 @@ export default function AnotacionPage() {
     const [awayRoster, setAwayRoster] = useState([]);
 
     // Paso 3/4: stats por jugador
-    const [batting, setBatting] = useState({});  // {player_id: {pa,ab,...}}
-    const [pitching, setPitching] = useState({});  // {player_id: {ip_outs,...,decision}}
+    const [batting, setBatting] = useState({});
+    const [pitching, setPitching] = useState({});
 
     // Paso 5: decisiones
     const [winPitcher, setWinPitcher] = useState('');
@@ -55,11 +62,13 @@ export default function AnotacionPage() {
     const [error, setError] = useState('');
     const [activeTab, setActiveTab] = useState('batting');
 
-    // Cargar juegos pendientes
+    // Cargar juegos pendientes: scheduled + live
     useEffect(() => {
-        authFetch('/games/?status=scheduled').then(r => r.ok ? r.json() : {}).then(d => {
-            const list = Array.isArray(d) ? d : (d.results ?? []);
-            setGames(list);
+        Promise.all([
+            authFetch('/games/?status=scheduled').then(r => r.ok ? r.json() : {}).then(d => Array.isArray(d) ? d : (d.results ?? [])),
+            authFetch('/games/?status=live').then(r => r.ok ? r.json() : {}).then(d => Array.isArray(d) ? d : (d.results ?? [])),
+        ]).then(([scheduled, live]) => {
+            setGames([...live, ...scheduled]); // live primero
         });
     }, [authFetch]);
 
@@ -70,19 +79,14 @@ export default function AnotacionPage() {
         setError('');
         if (!id) { setGame(null); setHomeRoster([]); setAwayRoster([]); return; }
 
-        const [gameRes, homeRes, awayRes, gameDetail] = await Promise.all([
-            authFetch(`/games/${id}/`),
-            authFetch(`/rosters/?team=${0}`), // placeholder
-            authFetch(`/rosters/?team=${0}`),
-            authFetch(`/games/${id}/`),
-        ]);
-
-        const g = await gameDetail.json();
+        const gameRes = await authFetch(`/games/${id}/`);
+        if (!gameRes.ok) return;
+        const g = await gameRes.json();
         setGame(g);
 
         const [hRes, aRes] = await Promise.all([
-            authFetch(`/rosters/?team=${g.home_team}`),
-            authFetch(`/rosters/?team=${g.away_team}`),
+            authFetch(`/rosters/?team=${g.home_team}&is_active=true`),
+            authFetch(`/rosters/?team=${g.away_team}&is_active=true`),
         ]);
 
         const hRoster = hRes.ok ? await hRes.json() : { results: [] };
@@ -91,8 +95,10 @@ export default function AnotacionPage() {
         const hList = Array.isArray(hRoster) ? hRoster : (hRoster.results ?? []);
         const aList = Array.isArray(aRoster) ? aRoster : (aRoster.results ?? []);
 
-        setHomeRoster(hList);
-        setAwayRoster(aList);
+        // Ordenar por número de camiseta
+        const sortByNum = arr => [...arr].sort((a, b) => (a.jersey_number ?? 99) - (b.jersey_number ?? 99));
+        setHomeRoster(sortByNum(hList));
+        setAwayRoster(sortByNum(aList));
 
         // Inicializar stats vacías
         const initBatting = {};
@@ -104,6 +110,14 @@ export default function AnotacionPage() {
         setBatting(initBatting);
         setPitching(initPitching);
     }, [authFetch]);
+
+    // Pre-cargar game desde ?game=ID en la URL
+    useEffect(() => {
+        const gid = searchParams.get('game');
+        if (gid && gid !== gameId) {
+            loadGame(gid);
+        }
+    }, [searchParams, loadGame, gameId]);
 
     const handleBatting = (playerId, col, value) => {
         setBatting(prev => ({
@@ -126,38 +140,34 @@ export default function AnotacionPage() {
         setSuccess('');
 
         try {
-            const allRosters = [...homeRoster.map(r => ({ ...r, team: game.home_team })),
-            ...awayRoster.map(r => ({ ...r, team: game.away_team }))];
+            const allRosters = [
+                ...homeRoster.map(r => ({ ...r, team: game.home_team })),
+                ...awayRoster.map(r => ({ ...r, team: game.away_team })),
+            ];
 
-            // Subir stats de bateo
+            // Subir stats de bateo (solo jugadores con al menos 1 PA)
             const battingPromises = allRosters.map(async r => {
                 const stats = batting[r.player];
-                if (!stats || stats.ab === 0) return; // skip sin datos
+                if (!stats || stats.pa === 0) return;
                 return authFetch('/stats/batting/', {
                     method: 'POST',
-                    body: JSON.stringify({
-                        game: parseInt(gameId), team: r.team, player: r.player,
-                        ...stats,
-                    }),
+                    body: JSON.stringify({ game: parseInt(gameId), team: r.team, player: r.player, ...stats }),
                 });
             });
 
-            // Subir stats de pitcheo
+            // Subir stats de pitcheo (solo pitchers con al menos 1 out)
             const pitchingPromises = allRosters.map(async r => {
                 const stats = pitching[r.player];
-                if (!stats || stats.ip_outs === 0) return; // skip sin datos
+                if (!stats || stats.ip_outs === 0) return;
                 return authFetch('/stats/pitching/', {
                     method: 'POST',
-                    body: JSON.stringify({
-                        game: parseInt(gameId), team: r.team, player: r.player,
-                        ...stats,
-                    }),
+                    body: JSON.stringify({ game: parseInt(gameId), team: r.team, player: r.player, ...stats }),
                 });
             });
 
             await Promise.all([...battingPromises, ...pitchingPromises]);
 
-            // Actualizar decisiones del juego y cambiar estado a 'finished'
+            // Actualizar decisiones del juego
             await authFetch(`/games/${gameId}/`, {
                 method: 'PATCH',
                 body: JSON.stringify({
@@ -176,6 +186,9 @@ export default function AnotacionPage() {
             setSuccess('✅ Hoja guardada. Scores y standings actualizados automáticamente.');
             setGame(null);
             setGameId('');
+            setWinPitcher('');
+            setLosePitcher('');
+            setSavePitcher('');
         } catch (e) {
             setError('Error al guardar. Verifica los datos e intenta nuevamente.');
         } finally {
@@ -184,7 +197,7 @@ export default function AnotacionPage() {
     };
 
     const allPitchers = [...homeRoster, ...awayRoster].filter(r => r.position === 'P');
-    const pitcherOpts = allPitchers.map(r => ({ value: r.player, label: r.player_name }));
+    const pitcherOpts = allPitchers.map(r => ({ value: r.player, label: `${r.player_name} (${r.team_name ?? ''})` }));
 
     return (
         <>
@@ -198,16 +211,37 @@ export default function AnotacionPage() {
                     <div className="card-body">
                         <div className="form-group" style={{ marginBottom: 0 }}>
                             <label className="form-label">Seleccionar juego a anotar</label>
-                            <select className="form-select" value={gameId} onChange={e => loadGame(e.target.value)} style={{ maxWidth: 480 }}>
-                                <option value="">— Seleccionar juego programado —</option>
-                                {games.map(g => {
-                                    const d = new Date(g.game_date).toLocaleDateString('es-VE');
-                                    return <option key={g.id} value={g.id}>{d} · {g.away_team_name} @ {g.home_team_name}</option>;
-                                })}
+                            <select
+                                className="form-select"
+                                value={gameId}
+                                onChange={e => loadGame(e.target.value)}
+                                style={{ maxWidth: 520 }}
+                            >
+                                <option value="">— Seleccionar juego —</option>
+                                {games.length > 0 && (
+                                    <>
+                                        {games.filter(g => g.status === 'live').length > 0 && (
+                                            <optgroup label="🔴 En progreso">
+                                                {games.filter(g => g.status === 'live').map(g => {
+                                                    const d = new Date(g.game_date).toLocaleDateString('es-VE');
+                                                    return <option key={g.id} value={g.id}>{d} · {g.away_team_name} @ {g.home_team_name}</option>;
+                                                })}
+                                            </optgroup>
+                                        )}
+                                        {games.filter(g => g.status === 'scheduled').length > 0 && (
+                                            <optgroup label="📅 Programados">
+                                                {games.filter(g => g.status === 'scheduled').map(g => {
+                                                    const d = new Date(g.game_date).toLocaleDateString('es-VE');
+                                                    return <option key={g.id} value={g.id}>{d} · {g.away_team_name} @ {g.home_team_name}</option>;
+                                                })}
+                                            </optgroup>
+                                        )}
+                                    </>
+                                )}
                             </select>
                             {games.length === 0 && (
                                 <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '0.5rem' }}>
-                                    No hay juegos programados. Crea uno en <a href="/admin-panel/juegos" style={{ color: 'var(--accent)' }}>Gestión de Juegos</a>.
+                                    No hay juegos activos. Crea uno en <a href="/admin-panel/juegos" style={{ color: 'var(--accent)' }}>Gestión de Juegos</a>.
                                 </p>
                             )}
                         </div>
@@ -225,6 +259,11 @@ export default function AnotacionPage() {
                                 {new Date(game.game_date).toLocaleDateString('es-VE', { weekday: 'long', day: '2-digit', month: 'long' })}
                                 {game.stadium_name && ` · 🏟 ${game.stadium_name}`}
                             </span>
+                            {game.status === 'live' && (
+                                <span style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.4)', color: '#ef4444', padding: '0.25rem 0.65rem', borderRadius: 20, fontSize: '0.75rem', fontWeight: 700, animation: 'pulse 2s infinite' }}>
+                                    ● EN VIVO
+                                </span>
+                            )}
                         </div>
 
                         {success && <div style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)', color: 'var(--green)', padding: '0.75rem 1rem', borderRadius: 'var(--radius)', marginBottom: '1rem', fontSize: '0.875rem' }}>{success}</div>}
@@ -245,7 +284,9 @@ export default function AnotacionPage() {
                                     <div key={label} style={{ marginBottom: '2rem' }}>
                                         <h3 className="section-title">{label}</h3>
                                         {roster.length === 0 ? (
-                                            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Sin jugadores en el roster. Agrégalos en <a href="/admin-panel/rosters" style={{ color: 'var(--accent)' }}>Rosters</a>.</p>
+                                            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                                                Sin jugadores en el roster. Agrégalos en <a href="/admin-panel/rosters" style={{ color: 'var(--accent)' }}>Rosters</a>.
+                                            </p>
                                         ) : (
                                             <div style={{ overflowX: 'auto' }}>
                                                 {/* Header */}
@@ -257,7 +298,7 @@ export default function AnotacionPage() {
                                                 {roster.map(r => (
                                                     <div key={r.player} className="score-player-row">
                                                         <div className="player-label">#{r.jersey_number} {r.player_name}</div>
-                                                        {BATTING_KEYS.map((k, i) => (
+                                                        {BATTING_KEYS.map(k => (
                                                             <input
                                                                 key={k}
                                                                 type="number"
@@ -269,6 +310,15 @@ export default function AnotacionPage() {
                                                         ))}
                                                     </div>
                                                 ))}
+                                                {/* Fila de totales */}
+                                                <div className="score-player-row" style={{ background: 'rgba(212,175,55,0.07)', borderTop: '1px solid var(--border)' }}>
+                                                    <div className="player-label" style={{ fontWeight: 700, color: 'var(--gold)', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: 0.5 }}>TOTALES</div>
+                                                    {BATTING_KEYS.map(k => (
+                                                        <div key={k} className="score-input" style={{ textAlign: 'center', fontFamily: 'Bebas Neue', fontSize: '1rem', color: 'var(--gold)', padding: '0 0.25rem', lineHeight: '32px' }}>
+                                                            {calcTotals(roster, batting, k)}
+                                                        </div>
+                                                    ))}
+                                                </div>
                                             </div>
                                         )}
                                     </div>
@@ -285,7 +335,7 @@ export default function AnotacionPage() {
                                     <div key={label} style={{ marginBottom: '2rem' }}>
                                         <h3 className="section-title">{label}</h3>
                                         {roster.length === 0 ? (
-                                            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Sin pitchers en el roster.</p>
+                                            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Sin pitchers en el roster para este equipo.</p>
                                         ) : (
                                             <div style={{ overflowX: 'auto' }}>
                                                 <div className="score-header-row" style={{ gridTemplateColumns: '160px repeat(10, 1fr) 130px' }}>
@@ -350,7 +400,7 @@ export default function AnotacionPage() {
                         {/* Guardar */}
                         <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem', justifyContent: 'flex-end' }}>
                             <button className="btn btn-secondary" onClick={() => { setGameId(''); setGame(null); }}>Cancelar</button>
-                            <button className="btn btn-primary" onClick={handleSave} disabled={saving} style={{ minWidth: 180 }}>
+                            <button className="btn btn-primary" onClick={handleSave} disabled={saving} style={{ minWidth: 200 }}>
                                 {saving ? 'Guardando…' : '💾 Guardar y cerrar juego'}
                             </button>
                         </div>

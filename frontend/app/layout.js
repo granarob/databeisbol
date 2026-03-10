@@ -1,4 +1,5 @@
 import './globals.css';
+import NextTopLoader from 'nextjs-toploader';
 
 export const metadata = {
   title: 'BeisbolData — Estadísticas de Béisbol Menor Venezuela',
@@ -39,6 +40,12 @@ export default function RootLayout({ children }) {
   return (
     <html lang="es">
       <body>
+        <NextTopLoader
+          color="#38bdf8"
+          height={3}
+          showSpinner={false}
+          shadow="0 0 10px #38bdf8, 0 0 5px #38bdf8"
+        />
         <Navbar />
         <main>{children}</main>
         <Footer />

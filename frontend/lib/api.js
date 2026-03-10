@@ -98,3 +98,7 @@ export async function getSeasons(leagueId) {
 export async function getLeagues() {
     return apiFetch('/leagues/') ?? { results: [] };
 }
+
+export async function getLeague(id) {
+    return apiFetch(`/leagues/${id}/`);
+}

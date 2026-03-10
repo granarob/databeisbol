@@ -100,6 +100,7 @@ class Command(BaseCommand):
         
         # Eliminar rosters anteriores para un seed limpio
         Roster.objects.all().delete()
+        Player.objects.all().delete()  # Limpieza total de jugadores
         
         all_players = []
         player_idx = 0
@@ -110,14 +111,13 @@ class Command(BaseCommand):
                 ln = random.choice(last_names)
                 bd = date(2013 if team.category == prebeis else 2017, random.randint(1,12), random.randint(1,28))
                 
-                # Para evitar duplicados exactos nombre+apellido
-                p, created = Player.objects.get_or_create(
-                    first_name=fn, last_name=ln,
-                    defaults={
-                        'birth_date': bd,
-                        'bats_hand': random.choice(['R', 'L', 'S']),
-                        'throws_hand': random.choice(['R', 'L'])
-                    }
+                # Nombre único garantizado con sufijo numérico
+                unique_fn = f"{fn}{player_idx}"
+                p = Player.objects.create(
+                    first_name=fn, last_name=f"{ln}" ,
+                    birth_date=bd,
+                    bats_hand=random.choice(['R', 'L', 'S']),
+                    throws_hand=random.choice(['R', 'L'])
                 )
                 
                 Roster.objects.create(

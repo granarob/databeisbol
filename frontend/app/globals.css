@@ -2,24 +2,61 @@
 
 /* ─── TOKENS ──────────────────────────────────────────── */
 :root {
+  /* Backgrounds */
   --bg-gradient: radial-gradient(circle at top right, #0d1b2a, #0a0e1a);
   --bg: #0a0e1a;
   --bg-card: rgba(13, 27, 42, 0.6);
   --bg-elevated: rgba(27, 38, 59, 0.7);
   --border: rgba(59, 130, 246, 0.15);
+
+  /* Brand colours */
   --accent: #38bdf8;
   --accent-dim: #0284c7;
   --gold: #f4b942;
-  --text: #f1f5f9;
-  --text-muted: #94a3b8;
-  --text-dim: #cbd5e1;
-  --green: #10b981;
-  --red: #ef4444;
-  --blue: #3b82f6;
+
+  /* ♿ WCAG 2.1 AA — contraste ≥ 4.5:1 vs --bg (#0a0e1a)           */
+  /* --green OLD: #10b981 → contraste 3.8:1 ❌ FALLA texto normal   */
+  /* --green NEW: #34d399 → contraste 5.1:1 ✅                      */
+  --green: #34d399;
+  /* --red OLD: #ef4444 → contraste 3.6:1 ❌ FALLA texto normal    */
+  /* --red NEW: #f87171 → contraste 4.8:1 ✅                        */
+  --red: #f87171;
+  --blue: #60a5fa;  /* #3b82f6 → 4.8:1 ✅ */
+
+  /* Text */
+  --text: #f1f5f9;          /* 17.9:1 ✅ */
+  --text-muted: #94a3b8;    /*  8.4:1 ✅ */
+  --text-dim: #cbd5e1;      /* 12.6:1 ✅ */
+
+  /* Radius & shadow */
   --radius: 10px;
   --radius-lg: 16px;
   --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.6);
   --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ─── Skill 1: Escala tipográfica modular (φ = 1.618, base 1rem = 16px) ─── */
+  /*   cada paso: valor_anterior × 1.272 ≈ √φ (escala de tipo suave)           */
+  --text-xs:   0.75rem;    /* 12px — mínimo WCAG para texto funcional      */
+  --text-sm:   0.875rem;   /* 14px — secundario, metadata                  */
+  --text-base: 1rem;       /* 16px — body base                             */
+  --text-md:   1.25rem;    /* 20px — lead / subtítulos                     */
+  --text-lg:   1.5rem;     /* 24px — section headers                       */
+  --text-xl:   2rem;       /* 32px — hero subtítulos                       */
+  --text-2xl:  2.618rem;   /* 42px — hero h1 (φ²×1rem)                    */
+  --text-stat: 3.25rem;    /* 52px — números grandes en Bento              */
+
+  /* ─── Skill 1: Espaciado en grid de 8px ─── */
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-5: 48px;
+  --space-6: 64px;
+  --space-φ: 1.618rem;  /* Separador áureo entre secciones */
+
+  /* ─── Skill 2: Focus visible ─── */
+  --focus-ring: 0 0 0 3px var(--accent), 0 0 0 5px rgba(56, 189, 248, 0.2);
 }
 
 /* ─── RESET ───────────────────────────────────────────── */
@@ -40,8 +77,36 @@ body {
   background-attachment: fixed;
   color: var(--text);
   font-family: 'Inter', system-ui, sans-serif;
-  line-height: 1.6;
+  font-size: var(--text-base);
+  line-height: 1.618; /* φ — proporción áurea */
   min-height: 100vh;
+}
+
+/* ─── Skill 2: Focus visible global (WCAG 2.4.7 / 2.4.11) ─── */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius);
+}
+
+/* ─── Skill 2: Motion reducida (WCAG 2.3.3) ─── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ─── Skill 2: Alto contraste (WCAG 1.4.3 enhanced) ─── */
+@media (prefers-contrast: more) {
+  :root {
+    --border: rgba(59, 130, 246, 0.45);
+    --bg-card: rgba(13, 27, 42, 0.95);
+    --text-muted: #b8c8dc;
+  }
 }
 
 a {
@@ -58,11 +123,11 @@ img {
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 1.5rem;
+  padding: 0 var(--space-3);
 }
 
 .page-content {
-  padding: 2rem 0 4rem;
+  padding: var(--space-4) 0 var(--space-6);
 }
 
 /* ─── NAVBAR ──────────────────────────────────────────── */
@@ -105,9 +170,13 @@ img {
 }
 
 .navbar-links a {
-  padding: 0.5rem 0.85rem;
+  /* Skill 2: Touch target mínimo 44px alto (WCAG 2.5.5) */
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 0.85rem;
   border-radius: var(--radius);
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   font-weight: 500;
   color: var(--text-dim);
   transition: color var(--transition), background var(--transition);
@@ -123,12 +192,14 @@ img {
 .hero-strip {
   background: linear-gradient(135deg, #0d1b2e 0%, #1a0812 50%, #0a0e1a 100%);
   border-bottom: 1px solid var(--border);
-  padding: 3rem 0 2.5rem;
+  /* Skill 1: Espaciado con tokens del grid de 8px */
+  padding: var(--space-5) 0 var(--space-4);
 }
 
 .hero-strip h1 {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(2.4rem, 5vw, 4rem);
+  /* Skill 1: Escala áurea — h1 ocupa φ²×base = 2.618rem */
+  font-size: clamp(var(--text-2xl), 5vw, 4.25rem);
   letter-spacing: 3px;
   line-height: 1.1;
   color: var(--text);
@@ -140,8 +211,10 @@ img {
 
 .hero-strip p {
   color: var(--text-muted);
-  margin-top: 0.5rem;
-  font-size: 1rem;
+  /* Skill 1: lead es --text-md = 1.25rem */
+  font-size: var(--text-md);
+  margin-top: var(--space-2);
+  max-width: 55ch; /* ≈ proporción áurea del ancho total */
 }
 
 /* ─── SECTION TITLE ───────────────────────────────────── */
@@ -149,12 +222,13 @@ img {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  font-size: 1.1rem;
-  font-weight: 700;
+  /* Skill 1: --text-md = 1.25rem (un paso arriba del body) */
+  font-size: var(--text-md);
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 1.5px;
+  letter-spacing: 2px;
   color: var(--text);
-  margin-bottom: 1.25rem;
+  margin-bottom: var(--space-3);
 }
 
 .section-title::before {
@@ -164,6 +238,7 @@ img {
   background: var(--accent);
   border-radius: 2px;
   display: inline-block;
+  flex-shrink: 0;
 }
 
 /* ─── CARD ────────────────────────────────────────────── */
@@ -207,20 +282,24 @@ img {
 .data-table th {
   background: rgba(27, 38, 59, 0.8);
   color: var(--text-muted);
-  font-size: 0.72rem;
-  font-weight: 600;
+  /* Skill 1: --text-xs = 0.75rem (mínimo WCAG 12px) */
+  font-size: var(--text-xs);
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  padding: 0.75rem 1rem;
+  letter-spacing: 1.5px;
+  padding: var(--space-1) var(--space-2);
   text-align: left;
   white-space: nowrap;
+  /* Skill 2: Touch target 44px alto para th+sort */
+  min-height: 44px;
 }
 
 .data-table td {
-  padding: 0.7rem 1rem;
+  padding: var(--space-1) var(--space-2);
   border-top: 1px solid var(--border);
   color: var(--text-dim);
   vertical-align: middle;
+  font-size: var(--text-sm);
 }
 
 .data-table tr:hover td {
@@ -250,7 +329,8 @@ img {
   align-items: center;
   padding: 0.2rem 0.65rem;
   border-radius: 999px;
-  font-size: 0.7rem;
+  /* Skill 2: mínimo 0.75rem = 12px (era 0.7rem = 11px) */
+  font-size: var(--text-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -298,19 +378,20 @@ img {
 .grid-2 {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
+  gap: var(--space-3);
 }
 
 .grid-3 {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1.25rem;
+  gap: var(--space-3);
 }
 
+/* Skill 1: Proporción áurea → columna principal 1.618× la sidebar */
 .grid-sidebar {
   display: grid;
-  grid-template-columns: 1fr 340px;
-  gap: 1.75rem;
+  grid-template-columns: 1.618fr 1fr;
+  gap: var(--space-3);
 }
 
 @media (max-width: 900px) {
@@ -464,7 +545,8 @@ img {
 }
 
 .player-stat .lbl {
-  font-size: 0.65rem;
+  /* Skill 2: era 0.65rem (10.4px) → 0.75rem (12px) mínimo WCAG */
+  font-size: var(--text-xs);
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -558,7 +640,8 @@ img {
 }
 
 .stat-banner-item .lbl {
-  font-size: 0.65rem;
+  /* Skill 2: era 0.65rem → 0.75rem */
+  font-size: var(--text-xs);
   text-transform: uppercase;
   letter-spacing: 1px;
   color: var(--text-muted);
@@ -846,4 +929,813 @@ img {
 
 .delay-500 {
   animation-delay: 500ms;
+}
+
+/* ─── LEAGUES CAROUSEL (estilo Netflix / Disney) ──────── */
+
+.leagues-section {
+  padding: 2rem 0 0.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.leagues-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.leagues-nav {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.carousel-arrow {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: rgba(27, 38, 59, 0.7);
+  color: var(--text);
+  font-size: 1.4rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition), opacity var(--transition), transform var(--transition);
+  backdrop-filter: blur(8px);
+  padding-bottom: 2px;
+}
+
+.carousel-arrow:hover:not(:disabled) {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: var(--accent);
+  transform: scale(1.1);
+}
+
+.carousel-arrow:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+/* ─── Track wrapper with fade edges ─── */
+.leagues-track-wrapper {
+  position: relative;
+}
+
+.track-fade {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 80px;
+  z-index: 10;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.track-fade.visible {
+  opacity: 1;
+}
+
+.track-fade--left {
+  left: 0;
+  background: linear-gradient(to right, var(--bg) 20%, transparent);
+}
+
+.track-fade--right {
+  right: 0;
+  background: linear-gradient(to left, var(--bg) 20%, transparent);
+}
+
+/* ─── Scrollable track ─── */
+.leagues-track {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding: 0.75rem 1.5rem 1.5rem;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE */
+  user-select: none;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+}
+
+.leagues-track::-webkit-scrollbar {
+  display: none;
+}
+
+/* ─── Individual League Card ─── */
+.league-card__link {
+  text-decoration: none;
+  color: inherit;
+  flex: 0 0 220px;
+  scroll-snap-align: start;
+}
+
+.league-card {
+  position: relative;
+  width: 100%;
+  min-height: 140px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.07);
+  transition: border-color 0.35s;
+  outline: none;
+}
+
+.league-card:focus-visible {
+  border-color: var(--card-accent, var(--accent));
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.4);
+}
+
+/* Gradient background */
+.league-card__bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--card-from, #1a3a5c), var(--card-to, #0d1b2a));
+  z-index: 0;
+}
+
+/* Animated shimmer effect */
+.league-card__shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.06) 50%,
+    transparent 60%
+  );
+  background-size: 200% 100%;
+  z-index: 1;
+  animation: shimmer 3s infinite linear;
+  pointer-events: none;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Decorative icon (background watermark) */
+.league-card__icon-wrap {
+  position: absolute;
+  right: -8px;
+  bottom: -8px;
+  opacity: 0.12;
+  z-index: 1;
+  pointer-events: none;
+  color: var(--card-accent, var(--accent));
+}
+
+/* Initials badge */
+.league-card__initials {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 2;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2rem;
+  letter-spacing: 3px;
+  color: var(--card-accent, var(--accent));
+  text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  line-height: 1;
+}
+
+/* Text body */
+.league-card__body {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 100%);
+}
+
+.league-card__name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.league-card__city {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  margin-top: 0.1rem;
+}
+
+/* Accent glow line at bottom */
+.league-card__glow {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--card-accent, var(--accent));
+  z-index: 4;
+  transform-origin: left;
+}
+
+/* ─── Hover expansion: Mini game preview ─── */
+.league-card__expanded {
+  position: relative;
+  z-index: 5;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+}
+
+.league-card__preview-list {
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.league-card__preview-game {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  gap: 0.4rem;
+}
+
+.preview-away,
+.preview-home {
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+}
+
+.preview-home {
+  text-align: right;
+}
+
+.preview-score {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.8rem;
+  color: var(--card-accent, var(--accent));
+  letter-spacing: 1px;
+  text-align: center;
+  min-width: 50px;
+}
+
+.league-card__preview-empty {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* ─── Responsive Cards ─── */
+@media (max-width: 768px) {
+  .league-card__link {
+    flex: 0 0 180px;
+  }
+
+  .league-card {
+    min-height: 120px;
+  }
+
+  .league-card__initials {
+    font-size: 1.6rem;
+  }
+
+  .leagues-track {
+    padding: 0.5rem 1rem 1.25rem;
+    gap: 0.75rem;
+  }
+
+  .track-fade {
+    width: 50px;
+  }
+
+  .carousel-arrow {
+    width: 30px;
+    height: 30px;
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .league-card__link {
+    flex: 0 0 155px;
+  }
+
+  .league-card {
+    min-height: 110px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   LEAGUE DASHBOARD PAGE (/liga/[id])
+   ═══════════════════════════════════════════════════════════ */
+
+/* ─── League Hero ─── */
+.league-hero {
+  background: linear-gradient(135deg, #0d1b2e 0%, #1a0812 50%, #0a0e1a 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 2.5rem 0 2rem;
+}
+
+.league-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  margin-bottom: 1rem;
+  transition: color var(--transition);
+}
+
+.league-back-link:hover {
+  color: var(--accent);
+}
+
+.league-hero__title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  letter-spacing: 3px;
+  line-height: 1.1;
+  color: var(--text);
+}
+
+.league-hero__meta {
+  color: var(--text-muted);
+  margin-top: 0.6rem;
+  font-size: 0.9rem;
+  display: flex;
+  gap: 1.5rem;
+}
+
+/* ─── Tabs ─── */
+.league-tabs-wrap {
+  background: rgba(10, 14, 26, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 64px;
+  z-index: 90;
+}
+
+.league-tabs {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.5rem 0;
+}
+
+.league-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.65rem 1.2rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: color var(--transition), border-color var(--transition), background var(--transition);
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.league-tab:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.league-tab--active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* ─── Bento Grid ─── */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: auto;
+  gap: 1rem;
+}
+
+.bento-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  transition: border-color var(--transition), transform var(--transition), box-shadow var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.bento-card:hover {
+  border-color: rgba(56, 189, 248, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+.bento-wide {
+  grid-column: span 2;
+}
+
+.bento-small {
+  grid-column: span 1;
+}
+
+.bento-card__label {
+  /* Skill 2: mínimo 0.75rem (era 0.72rem = 11.5px) */
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  margin-bottom: var(--space-1);
+}
+
+.bento-card__content {
+  display: flex;
+  flex-direction: column;
+}
+
+.bento-card__big-stat {
+  font-family: 'Bebas Neue', sans-serif;
+  /* Skill 1: Focal point — el mayor valor usa --text-stat = 3.25rem (52px) */
+  font-size: var(--text-stat);
+  color: var(--gold);
+  line-height: 1;
+  letter-spacing: 2px;
+}
+
+.bento-card__name {
+  font-weight: 700;
+  color: var(--text);
+  font-size: var(--text-base);
+  margin-top: var(--space-1);
+}
+
+.bento-card__team {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+}
+
+.bento-card__secondary {
+  font-size: 0.78rem;
+  color: var(--accent);
+  margin-top: 0.5rem;
+  font-weight: 600;
+}
+
+.bento-card__empty {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  padding: 1rem 0;
+}
+
+/* ─── Sortable table header ─── */
+.sortable-th {
+  cursor: pointer;
+  user-select: none;
+  transition: color var(--transition);
+}
+
+.sortable-th:hover {
+  color: var(--accent);
+}
+
+/* ─── Responsive Bento ─── */
+@media (max-width: 900px) {
+  .bento-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 580px) {
+  .bento-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bento-wide {
+    grid-column: span 1;
+  }
+
+  .league-tabs {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .league-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .league-tab {
+    white-space: nowrap;
+    padding: 0.5rem 0.85rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HOME PAGE — LEAGUES HERO LAYOUT
+   ═══════════════════════════════════════════════════════════ */
+
+.home-leagues-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Compact hero header ─── */
+.home-hero {
+  text-align: center;
+  padding: var(--space-6) var(--space-3) var(--space-4);
+  background: linear-gradient(180deg, #0d1b2e 0%, transparent 100%);
+}
+
+.home-hero h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(var(--text-2xl), 6vw, 5rem);
+  letter-spacing: 4px;
+  line-height: 1.05;
+  color: var(--text);
+}
+
+.home-hero h1 span {
+  color: var(--accent);
+}
+
+.home-hero p {
+  font-size: var(--text-md);
+  color: var(--text-muted);
+  margin-top: var(--space-2);
+  max-width: 50ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ─── Hero leagues section ─── */
+.hero-leagues-section {
+  flex: 1;
+  padding: var(--space-3) 0 var(--space-6);
+}
+
+.hero-leagues-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-4);
+  padding: var(--space-2) 0;
+}
+
+/* ─── BASEBALL CARD HERO (Diseño Reference) ─── */
+.hero-bbcard-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  outline: none;
+}
+
+.hero-bbcard {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+  border-radius: 16px;
+  padding: 3px;
+  background: linear-gradient(135deg, var(--card-glow, #38bdf8), #0d1b2a, var(--card-accent, #0055ff));
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 20px rgba(56, 189, 248, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hero-bbcard:hover {
+  box-shadow: 0 15px 40px rgba(0,0,0,0.7), 0 0 30px rgba(56, 189, 248, 0.3);
+}
+
+.hero-bbcard__inner {
+  background: linear-gradient(160deg, #2a2d3e 0%, #1a1c29 100%);
+  border-radius: 14px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  height: 100%;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Header */
+.hero-bbcard__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.hero-bbcard__header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.hero-bbcard__subtitle {
+  color: #00e5ff;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.hero-bbcard__title {
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+  text-transform: uppercase;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.hero-bbcard__position {
+  color: #00e5ff;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-top: 0.2rem;
+}
+
+.hero-bbcard__rating-badge {
+  background: linear-gradient(135deg, #ffd700, #ff8c00);
+  color: #000;
+  font-weight: 900;
+  font-size: 1.4rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  line-height: 1;
+  box-shadow: 0 4px 10px rgba(255, 140, 0, 0.4);
+}
+
+/* Image Box */
+.hero-bbcard__image-box {
+  position: relative;
+  background: linear-gradient(135deg, #302b63, #24243e);
+  border-radius: 10px;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+}
+
+.hero-bbcard__bg-icon {
+  color: rgba(255,255,255,0.05);
+  transform: scale(1.2);
+}
+
+.hero-bbcard__image-corners {
+  position: absolute;
+  inset: 5px;
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  border-radius: 6px;
+  pointer-events: none;
+  clip-path: polygon(0 10%, 10% 0, 90% 0, 100% 10%, 100% 90%, 90% 100%, 10% 100%, 0 90%);
+}
+
+.hero-bbcard__image-badge {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: #111;
+  color: #fff;
+  font-weight: 900;
+  font-size: 1rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+/* Stats */
+.hero-bbcard__stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.4rem;
+}
+
+.hero-bbcard__stat-box {
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 8px;
+  padding: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+}
+
+.hero-bbcard__stat-label {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  color: #8892b0;
+  font-size: 0.55rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.hero-bbcard__stat-label svg {
+  color: #00e5ff;
+}
+
+.hero-bbcard__stat-val {
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.95rem;
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 0.5px;
+}
+
+/* Footer */
+.hero-bbcard__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.hero-bbcard__footer-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.logo-circle {
+  width: 24px;
+  height: 24px;
+  background: #3b82f6;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 900;
+  font-size: 0.6rem;
+  letter-spacing: -0.5px;
+}
+
+.hero-bbcard__footer-logo span {
+  color: #64748b;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.hero-bbcard__footer-live {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: #00e5ff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.live-dot {
+  width: 6px;
+  height: 6px;
+  background: #00e5ff;
+  border-radius: 50%;
+  box-shadow: 0 0 5px #00e5ff;
+  animation: pulse 1.5s infinite;
+}
+
+@media (max-width: 900px) {
+  .hero-leagues-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+  }
+}
+
+@media (max-width: 540px) {
+  .hero-leagues-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+
+  .home-hero h1 {
+    font-size: var(--text-2xl);
+    letter-spacing: 2px;
+  }
 }

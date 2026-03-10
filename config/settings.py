@@ -38,7 +38,11 @@ MIDDLEWARE = [
 
 # ─── CORS ───────────────────────────────────────────────────────
 _cors_origins = config('CORS_ALLOWED_ORIGINS', default='http://localhost:3000,http://127.0.0.1:3000', cast=Csv())
-CORS_ALLOWED_ORIGINS = list(_cors_origins)
+CORS_ALLOWED_ORIGINS = list(_cors_origins) + [
+    'https://dirty-rules-sin.loca.lt',  # Frontend tunnel
+    'https://full-roses-sin.loca.lt',   # Backend tunnel
+]
+CORS_ALLOW_ALL_ORIGINS = True  # Temporal para preview público
 CORS_ALLOW_CREDENTIALS = True
 
 # ─── URLS / WSGI ────────────────────────────────────────────────
@@ -99,8 +103,8 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.UserRateThrottle'
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'anon': '100/day',
-        'user': '1000/day'
+        'anon': '5000/hour',
+        'user': '10000/hour'
     }
 }
 
