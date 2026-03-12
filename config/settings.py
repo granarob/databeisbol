@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ─── SEGURIDAD ──────────────────────────────────────────────────
 SECRET_KEY  = config('SECRET_KEY')
 DEBUG       = config('DEBUG', default=False, cast=bool)
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*', cast=Csv())
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='.vercel.app,localhost,127.0.0.1', cast=Csv())
 
 # ─── APLICACIONES ───────────────────────────────────────────────
 INSTALLED_APPS = [
@@ -45,6 +45,13 @@ CORS_ALLOWED_ORIGINS = list(_cors_origins) + [
 CORS_ALLOW_ALL_ORIGINS = True  # Temporal para preview público
 CORS_ALLOW_CREDENTIALS = True
 
+# ─── CSRF TRUSTED ORIGINS (Vercel) ──────────────────────────────
+CSRF_TRUSTED_ORIGINS = config(
+    'CSRF_TRUSTED_ORIGINS',
+    default='https://*.vercel.app,http://localhost:3000,http://127.0.0.1:3000',
+    cast=Csv()
+)
+
 # ─── URLS / WSGI ────────────────────────────────────────────────
 ROOT_URLCONF      = 'config.urls'
 WSGI_APPLICATION  = 'config.wsgi.application'
@@ -73,7 +80,12 @@ if DATABASE_URL:
     try:
         import dj_database_url
         DATABASES = {
-            'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=True)
+            'default': dj_database_url.parse(
+                DATABASE_URL, 
+                conn_max_age=600, 
+                ssl_require=True,
+                engine='django.db.backends.postgresql'  # Forzamos postgresql backend (psycopg3 compatible Django 4.2+)
+            )
         }
     except ImportError:
         raise ImportError('dj-database-url no está instalado. Ejecuta: pip install dj-database-url')

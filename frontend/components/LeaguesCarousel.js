@@ -186,14 +186,26 @@ export default function LeaguesCarousel({ leagues = [], recentGames = [], heroMo
 
   if (!leagues.length) return null;
 
-  /* ── HERO MODE ── */
+  /* ── HERO MODE (Auto-scrolling Marquee) ── */
   if (heroMode) {
+    // Aseguramos tener suficientes elementos para que el scroll cubra pantallas grandes
+    // Repetimos la lista original hasta tener al menos 8 elementos.
+    let baseLeagues = [...leagues];
+    while (baseLeagues.length > 0 && baseLeagues.length < 8) {
+      baseLeagues = [...baseLeagues, ...leagues];
+    }
+    // Para el scroll infinito perfecto, duplicamos el bloque resultante
+    // Así se anima de 0 a -50% imperceptiblemente.
+    const marqueeLeagues = [...baseLeagues, ...baseLeagues];
+
     return (
       <section className="hero-leagues-section">
-        <div className="container">
-          <div className="hero-leagues-grid">
-            {leagues.map((league, i) => (
-              <HeroLeagueCard key={league.id} league={league} index={i} recentGames={recentGames} />
+        <div className="hero-marquee-container">
+          <div className="hero-marquee-track">
+            {marqueeLeagues.map((league, i) => (
+              <div className="hero-marquee-item" key={`${league.id}-${i}`}>
+                <HeroLeagueCard league={league} index={i % leagues.length} recentGames={recentGames} />
+              </div>
             ))}
           </div>
         </div>
