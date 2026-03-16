@@ -3,6 +3,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
+from django.utils import timezone
+from datetime import timedelta
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from django.core.cache import cache
@@ -330,6 +332,28 @@ class GameViewSet(viewsets.ModelViewSet):
         """GET /api/games/recent/ — últimos 10 juegos finalizados."""
         qs = self.get_queryset().filter(status=Game.Status.FINISHED)[:10]
         return Response(GameSerializer(qs, many=True).data)
+
+    @action(detail=False, methods=['get'], url_path='upcoming')
+    def upcoming(self, request):
+        """GET /api/games/upcoming/ — juegos programados o en vivo en las próximas 48h."""
+        now = timezone.now()
+        window = now + timedelta(hours=48)
+        qs = self.get_queryset().filter(
+            game_date__gte=now - timedelta(hours=4),
+            game_date__lte=window,
+            status__in=[Game.Status.SCHEDULED, Game.Status.LIVE],
+        ).order_by('game_date')[:12]
+        return Response(GameSerializer(qs, many=True).data)
+
+    @action(detail=False, methods=['get'], url_path='summary')
+    def summary(self, request):
+        """GET /api/games/summary/ — contadores globales para la home."""
+        from .models import Player, League
+        return Response({
+            'players_count': Player.objects.count(),
+            'leagues_count': League.objects.count(),
+            'games_count': Game.objects.filter(status=Game.Status.FINISHED).count(),
+        })
 
 
 # ===========================================================

@@ -435,11 +435,12 @@
 /* ─── SCORE SHEET STYLES ─────────────────────────────────── */
 .score-player-row {
     display: grid;
-    grid-template-columns: 160px repeat(14, 1fr);
+    grid-template-columns: 140px repeat(16, 1fr);
     gap: 4px;
     align-items: center;
     margin-bottom: 4px;
     font-size: 0.78rem;
+    min-width: 1000px; /* Evita compresión excesiva */
 }
 
 .score-player-row .player-label {
@@ -448,7 +449,8 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    padding-right: 0.5rem;
+    padding-right: 0.25rem;
+    font-size: 0.75rem;
 }
 
 .score-input {
@@ -470,9 +472,10 @@
 
 .score-header-row {
     display: grid;
-    grid-template-columns: 160px repeat(14, 1fr);
+    grid-template-columns: 140px repeat(16, 1fr);
     gap: 4px;
     margin-bottom: 6px;
+    min-width: 1000px;
 }
 
 .score-header-cell {

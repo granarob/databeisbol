@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ─── SEGURIDAD ──────────────────────────────────────────────────
 SECRET_KEY  = config('SECRET_KEY')
 DEBUG       = config('DEBUG', default=False, cast=bool)
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='.vercel.app,localhost,127.0.0.1', cast=Csv())
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='.vercel.app,.up.railway.app,localhost,127.0.0.1', cast=Csv())
 
 # ─── APLICACIONES ───────────────────────────────────────────────
 INSTALLED_APPS = [
@@ -48,7 +48,7 @@ CORS_ALLOW_CREDENTIALS = True
 # ─── CSRF TRUSTED ORIGINS (Vercel) ──────────────────────────────
 CSRF_TRUSTED_ORIGINS = config(
     'CSRF_TRUSTED_ORIGINS',
-    default='https://*.vercel.app,http://localhost:3000,http://127.0.0.1:3000',
+    default='https://*.vercel.app,https://*.up.railway.app,http://localhost:3000,http://127.0.0.1:3000',
     cast=Csv()
 )
 

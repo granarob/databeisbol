@@ -13,11 +13,11 @@ import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 
-const BATTING_COLS = ['pa', 'ab', 'r', 'h', '2b', '3b', 'hr', 'rbi', 'bb', 'so', 'sb', 'cs', 'hbp', 'sf'];
-const BATTING_KEYS = ['pa', 'ab', 'r', 'h', 'doubles', 'triples', 'hr', 'rbi', 'bb', 'so', 'sb', 'cs', 'hbp', 'sf'];
+const BATTING_COLS = ['VB', 'CA', 'HC', 'BB', 'SH', 'SF', 'GP', 'I', 'AL', 'H2', 'H3', 'HR', 'CI', 'BR', 'OR', 'K'];
+const BATTING_KEYS = ['ab', 'r', 'h', 'bb', 'sh', 'sf', 'hbp', 'ibb', 'pa', 'doubles', 'triples', 'hr', 'rbi', 'sb', 'cs', 'so'];
 
-const PITCHING_COLS = ['ip', 'h', 'r', 'er', 'bb', 'so', 'hr', 'wp', 'bk', 'hbp'];
-const PITCHING_KEYS = ['ip_outs', 'h', 'r', 'er', 'bb', 'so', 'hr', 'wp', 'bk', 'hbp'];
+const PITCHING_COLS = ['I', 'R', 'C', 'G', 'P', 'S', 'VB', 'IP', 'CP', 'CL', 'HP', 'BB', 'K', 'H2', 'H3', 'HR', 'SH', 'SF', 'GP', 'LZ'];
+const PITCHING_KEYS = ['is_starter', 'is_reliever', 'complete_game', 'win', 'loss', 'save', 'ab_against', 'ip_outs', 'r', 'er', 'h', 'bb', 'so', 'h2_allowed', 'h3_allowed', 'hr', 'sh_allowed', 'sf_allowed', 'hbp', 'pitch_count'];
 
 const DECISIONS = [
     { value: '', label: '—' },
@@ -57,10 +57,21 @@ export default function AnotacionPage() {
     const [losePitcher, setLosePitcher] = useState('');
     const [savePitcher, setSavePitcher] = useState('');
 
+    const [homeScore, setHomeScore] = useState(0);
+    const [awayScore, setAwayScore] = useState(0);
+
     const [saving, setSaving] = useState(false);
     const [success, setSuccess] = useState('');
     const [error, setError] = useState('');
     const [activeTab, setActiveTab] = useState('batting');
+
+    // Estado para lanzadores activos (permitir múltiples por equipo)
+    const [homePitchers, setHomePitchers] = useState([]);
+    const [awayPitchers, setAwayPitchers] = useState([]);
+
+    // Estado para lineup activo (orden al bate)
+    const [homeLineup, setHomeLineup] = useState([]);
+    const [awayLineup, setAwayLineup] = useState([]);
 
     // Cargar juegos pendientes: scheduled + live
     useEffect(() => {
@@ -109,6 +120,16 @@ export default function AnotacionPage() {
         });
         setBatting(initBatting);
         setPitching(initPitching);
+        setHomeScore(0);
+        setAwayScore(0);
+
+        // Inicializar lanzadores con los que tengan posición 'P'
+        setHomePitchers(hList.filter(r => r.position === 'P').map(r => r.player));
+        setAwayPitchers(aList.filter(r => r.position === 'P').map(r => r.player));
+
+        // Iniciar lineup vacío para que el usuario lo arme
+        setHomeLineup([]);
+        setAwayLineup([]);
     }, [authFetch]);
 
     // Pre-cargar game desde ?game=ID en la URL
@@ -127,10 +148,38 @@ export default function AnotacionPage() {
     };
 
     const handlePitching = (playerId, col, value) => {
-        setPitching(prev => ({
-            ...prev,
-            [playerId]: { ...prev[playerId], [col]: col === 'decision' ? value : (parseInt(value) || 0) }
-        }));
+        setPitching(prev => {
+            const current = prev[playerId] || emptyPitching();
+            let val = value;
+            // Manejar booleans para I, R, C, G, P, S
+            if (['is_starter', 'is_reliever', 'complete_game', 'win', 'loss', 'save'].includes(col)) {
+                val = value === 'true' || value === true;
+            } else if (col !== 'decision') {
+                val = parseInt(value) || 0;
+            }
+            return {
+                ...prev,
+                [playerId]: { ...current, [col]: val }
+            };
+        });
+    };
+
+    const moveLineupPlayer = (teamType, index, direction) => {
+        const setLineup = teamType === 'home' ? setHomeLineup : setAwayLineup;
+        setLineup(prev => {
+            const newList = [...prev];
+            if (direction === 'up' && index > 0) {
+                [newList[index - 1], newList[index]] = [newList[index], newList[index - 1]];
+            } else if (direction === 'down' && index < newList.length - 1) {
+                [newList[index + 1], newList[index]] = [newList[index], newList[index + 1]];
+            }
+            return newList;
+        });
+    };
+
+    const removeLineupPlayer = (teamType, playerId) => {
+        const setLineup = teamType === 'home' ? setHomeLineup : setAwayLineup;
+        setLineup(prev => prev.filter(id => id !== playerId));
     };
 
     const handleSave = async () => {
@@ -145,45 +194,54 @@ export default function AnotacionPage() {
                 ...awayRoster.map(r => ({ ...r, team: game.away_team })),
             ];
 
-            // Subir stats de bateo (solo jugadores con al menos 1 PA)
+            const activeBatters = [...homeLineup, ...awayLineup];
+
+            // Subir stats de bateo (solo jugadores con al menos 1 PA o que estén en el lineup)
             const battingPromises = allRosters.map(async r => {
                 const stats = batting[r.player];
-                if (!stats || stats.pa === 0) return;
+                const inLineup = activeBatters.includes(r.player);
+                if (!stats || (stats.pa === 0 && !inLineup)) return;
                 return authFetch('/stats/batting/', {
                     method: 'POST',
                     body: JSON.stringify({ game: parseInt(gameId), team: r.team, player: r.player, ...stats }),
                 });
             });
 
-            // Subir stats de pitcheo (solo pitchers con al menos 1 out)
-            const pitchingPromises = allRosters.map(async r => {
-                const stats = pitching[r.player];
-                if (!stats || stats.ip_outs === 0) return;
+            // Subir stats de pitcheo
+            const homePitchingPromises = homePitchers.map(async pId => {
+                const stats = pitching[pId];
+                if (!stats) return;
                 return authFetch('/stats/pitching/', {
                     method: 'POST',
-                    body: JSON.stringify({ game: parseInt(gameId), team: r.team, player: r.player, ...stats }),
+                    body: JSON.stringify({ game: parseInt(gameId), team: game.home_team, player: pId, ...stats }),
                 });
             });
 
-            await Promise.all([...battingPromises, ...pitchingPromises]);
+            const awayPitchingPromises = awayPitchers.map(async pId => {
+                const stats = pitching[pId];
+                if (!stats) return;
+                return authFetch('/stats/pitching/', {
+                    method: 'POST',
+                    body: JSON.stringify({ game: parseInt(gameId), team: game.away_team, player: pId, ...stats }),
+                });
+            });
 
-            // Actualizar decisiones del juego
+            await Promise.all([...battingPromises, ...homePitchingPromises, ...awayPitchingPromises]);
+
+            // Actualizar decisiones y marcador final del juego
             await authFetch(`/games/${gameId}/`, {
                 method: 'PATCH',
                 body: JSON.stringify({
                     winning_pitcher: winPitcher || null,
                     losing_pitcher: losePitcher || null,
                     save_pitcher: savePitcher || null,
+                    home_score: homeScore,
+                    away_score: awayScore,
+                    status: 'finished'
                 }),
             });
 
-            // Cerrar el juego (triggea signal de standings)
-            await authFetch(`/games/${gameId}/status/`, {
-                method: 'PATCH',
-                body: JSON.stringify({ status: 'finished' }),
-            });
-
-            setSuccess('✅ Hoja guardada. Scores y standings actualizados automáticamente.');
+            setSuccess('✅ Hoja guardada. Marcadores y standings actualizados.');
             setGame(null);
             setGameId('');
             setWinPitcher('');
@@ -196,7 +254,7 @@ export default function AnotacionPage() {
         }
     };
 
-    const allPitchers = [...homeRoster, ...awayRoster].filter(r => r.position === 'P');
+    const allPitchers = [...homeRoster.filter(r => homePitchers.includes(r.player)), ...awayRoster.filter(r => awayPitchers.includes(r.player))];
     const pitcherOpts = allPitchers.map(r => ({ value: r.player, label: `${r.player_name} (${r.team_name ?? ''})` }));
 
     return (
@@ -278,44 +336,93 @@ export default function AnotacionPage() {
                         {activeTab === 'batting' && (
                             <div>
                                 {[
-                                    { label: game.away_team_name + ' (Visitante)', roster: awayRoster, team: game.away_team },
-                                    { label: game.home_team_name + ' (Local)', roster: homeRoster, team: game.home_team },
-                                ].map(({ label, roster }) => (
-                                    <div key={label} style={{ marginBottom: '2rem' }}>
-                                        <h3 className="section-title">{label}</h3>
-                                        {roster.length === 0 ? (
+                                    { 
+                                        label: game.away_team_name + ' (Visitante)', 
+                                        roster: awayRoster, 
+                                        team: game.away_team, 
+                                        lineup: awayLineup, 
+                                        setLineup: setAwayLineup,
+                                        type: 'away'
+                                    },
+                                    { 
+                                        label: game.home_team_name + ' (Local)', 
+                                        roster: homeRoster, 
+                                        team: game.home_team, 
+                                        lineup: homeLineup, 
+                                        setLineup: setHomeLineup,
+                                        type: 'home' 
+                                    },
+                                ].map(({ label, roster, lineup, setLineup, type }) => (
+                                    <div key={label} style={{ marginBottom: '2.5rem' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                                            <h3 className="section-title" style={{ margin: 0 }}>{label}</h3>
+                                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                                <select 
+                                                    className="score-input" 
+                                                    style={{ width: '220px', textAlign: 'left' }}
+                                                    onChange={(e) => {
+                                                        const id = parseInt(e.target.value);
+                                                        if (id && !lineup.includes(id)) {
+                                                            setLineup([...lineup, id]);
+                                                        }
+                                                        e.target.value = "";
+                                                    }}
+                                                >
+                                                    <option value="">+ Añadir bateador al Lineup...</option>
+                                                    {roster.filter(r => !lineup.includes(r.player)).map(r => (
+                                                        <option key={r.player} value={r.player}>
+                                                            #{r.jersey_number} {r.player_name} ({r.position})
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        {lineup.length === 0 ? (
                                             <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                                                Sin jugadores en el roster. Agrégalos en <a href="/admin-panel/rosters" style={{ color: 'var(--accent)' }}>Rosters</a>.
+                                                Alineación vacía. Agrega los jugadores en su orden al bate usando el menú superior.
                                             </p>
                                         ) : (
-                                            <div style={{ overflowX: 'auto' }}>
+                                            <div style={{ overflowX: 'auto', border: '1px solid var(--border)', borderRadius: '8px', background: 'rgba(0,0,0,0.2)' }}>
                                                 {/* Header */}
-                                                <div className="score-header-row">
-                                                    <div className="score-header-cell" style={{ textAlign: 'left', paddingLeft: 4 }}>Jugador</div>
+                                                <div className="score-header-row" style={{ gridTemplateColumns: 'minmax(200px, auto) repeat(16, 1fr)', minWidth: '1100px', background: 'var(--bg-elevated)', padding: '0.5rem 0' }}>
+                                                    <div className="score-header-cell" style={{ textAlign: 'left', paddingLeft: 10 }}>Turno / Jugador</div>
                                                     {BATTING_COLS.map(c => <div key={c} className="score-header-cell">{c}</div>)}
                                                 </div>
                                                 {/* Rows */}
-                                                {roster.map(r => (
-                                                    <div key={r.player} className="score-player-row">
-                                                        <div className="player-label">#{r.jersey_number} {r.player_name}</div>
-                                                        {BATTING_KEYS.map(k => (
-                                                            <input
-                                                                key={k}
-                                                                type="number"
-                                                                min={0}
-                                                                className="score-input"
-                                                                value={batting[r.player]?.[k] ?? 0}
-                                                                onChange={e => handleBatting(r.player, k, e.target.value)}
-                                                            />
-                                                        ))}
-                                                    </div>
-                                                ))}
+                                                {lineup.map((pId, index) => {
+                                                    const r = roster.find(player => player.player === pId);
+                                                    if (!r) return null;
+                                                    return (
+                                                        <div key={pId} className="score-player-row" style={{ gridTemplateColumns: 'minmax(200px, auto) repeat(16, 1fr)', minWidth: '1100px', padding: '0.2rem 0', borderTop: '1px solid var(--border)' }}>
+                                                            <div className="player-label" style={{ paddingLeft: 10, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                                                    <button onClick={() => moveLineupPlayer(type, index, 'up')} disabled={index === 0} style={{ background: 'none', border: 'none', color: index === 0 ? 'rgba(255,255,255,0.1)' : 'var(--text-muted)', cursor: index === 0 ? 'default' : 'pointer', padding: 0, fontSize: '10px' }}>▲</button>
+                                                                    <button onClick={() => moveLineupPlayer(type, index, 'down')} disabled={index === lineup.length - 1} style={{ background: 'none', border: 'none', color: index === lineup.length - 1 ? 'rgba(255,255,255,0.1)' : 'var(--text-muted)', cursor: index === lineup.length - 1 ? 'default' : 'pointer', padding: 0, fontSize: '10px' }}>▼</button>
+                                                                </div>
+                                                                <button onClick={() => removeLineupPlayer(type, pId)} style={{ color: 'var(--red)', fontSize: '12px', background: 'none', border: 'none', cursor: 'pointer', padding: '0 4px' }} title="Quitar">✕</button>
+                                                                <span style={{ color: 'var(--accent)', fontWeight: 700, fontSize: '0.85rem', width: '15px' }}>{index + 1}.</span>
+                                                                <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>#{r.jersey_number} {r.player_name}</span>
+                                                            </div>
+                                                            {BATTING_KEYS.map(k => (
+                                                                <input
+                                                                    key={k}
+                                                                    type="number"
+                                                                    min={0}
+                                                                    className="score-input"
+                                                                    value={batting[r.player]?.[k] ?? 0}
+                                                                    onChange={e => handleBatting(r.player, k, e.target.value)}
+                                                                />
+                                                            ))}
+                                                        </div>
+                                                    );
+                                                })}
                                                 {/* Fila de totales */}
-                                                <div className="score-player-row" style={{ background: 'rgba(212,175,55,0.07)', borderTop: '1px solid var(--border)' }}>
-                                                    <div className="player-label" style={{ fontWeight: 700, color: 'var(--gold)', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: 0.5 }}>TOTALES</div>
+                                                <div className="score-player-row" style={{ gridTemplateColumns: 'minmax(200px, auto) repeat(16, 1fr)', minWidth: '1100px', background: 'rgba(212,175,55,0.07)', borderTop: '1px solid var(--border)', padding: '0.5rem 0' }}>
+                                                    <div className="player-label" style={{ paddingLeft: 10, fontWeight: 700, color: 'var(--gold)', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: 0.5 }}>TOTALES DEL EQUIPO</div>
                                                     {BATTING_KEYS.map(k => (
-                                                        <div key={k} className="score-input" style={{ textAlign: 'center', fontFamily: 'Bebas Neue', fontSize: '1rem', color: 'var(--gold)', padding: '0 0.25rem', lineHeight: '32px' }}>
-                                                            {calcTotals(roster, batting, k)}
+                                                        <div key={k} className="score-input" style={{ textAlign: 'center', fontFamily: 'Bebas Neue', fontSize: '1rem', color: 'var(--gold)', padding: '0 0.25rem' }}>
+                                                            {calcTotals(roster.filter(r => lineup.includes(r.player)), batting, k)}
                                                         </div>
                                                     ))}
                                                 </div>
@@ -329,43 +436,90 @@ export default function AnotacionPage() {
                         {activeTab === 'pitching' && (
                             <div>
                                 {[
-                                    { label: game.away_team_name + ' (Visitante)', roster: awayRoster.filter(r => r.position === 'P') },
-                                    { label: game.home_team_name + ' (Local)', roster: homeRoster.filter(r => r.position === 'P') },
-                                ].map(({ label, roster }) => (
-                                    <div key={label} style={{ marginBottom: '2rem' }}>
-                                        <h3 className="section-title">{label}</h3>
-                                        {roster.length === 0 ? (
-                                            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Sin pitchers en el roster para este equipo.</p>
+                                    { 
+                                        label: game.away_team_name + ' (Visitante)', 
+                                        pitcherIds: awayPitchers, 
+                                        roster: awayRoster,
+                                        setList: setAwayPitchers 
+                                    },
+                                    { 
+                                        label: game.home_team_name + ' (Local)', 
+                                        pitcherIds: homePitchers, 
+                                        roster: homeRoster,
+                                        setList: setHomePitchers 
+                                    },
+                                ].map(({ label, pitcherIds, roster, setList }) => (
+                                    <div key={label} style={{ marginBottom: '2.5rem' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                                            <h3 className="section-title" style={{ margin: 0 }}>{label}</h3>
+                                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                                <select 
+                                                    className="score-input" 
+                                                    style={{ width: '180px', textAlign: 'left' }}
+                                                    onChange={(e) => {
+                                                        const id = parseInt(e.target.value);
+                                                        if (id && !pitcherIds.includes(id)) {
+                                                            setList([...pitcherIds, id]);
+                                                        }
+                                                        e.target.value = "";
+                                                    }}
+                                                >
+                                                    <option value="">+ Añadir Lanzador...</option>
+                                                    {roster.filter(r => !pitcherIds.includes(r.player)).map(r => (
+                                                        <option key={r.player} value={r.player}>
+                                                            #{r.jersey_number} {r.player_name} ({r.position})
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        {pitcherIds.length === 0 ? (
+                                            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>No hay lanzadores registrados para este equipo.</p>
                                         ) : (
-                                            <div style={{ overflowX: 'auto' }}>
-                                                <div className="score-header-row" style={{ gridTemplateColumns: '160px repeat(10, 1fr) 130px' }}>
-                                                    <div className="score-header-cell" style={{ textAlign: 'left', paddingLeft: 4 }}>Lanzador</div>
+                                            <div style={{ overflowX: 'auto', border: '1px solid var(--border)', borderRadius: '8px', background: 'rgba(0,0,0,0.2)' }}>
+                                                <div className="score-header-row" style={{ gridTemplateColumns: 'minmax(140px, auto) repeat(20, 1fr)', minWidth: '1300px', background: 'var(--bg-elevated)', padding: '0.5rem 0' }}>
+                                                    <div className="score-header-cell" style={{ textAlign: 'left', paddingLeft: 10 }}>Lanzador</div>
                                                     {PITCHING_COLS.map(c => <div key={c} className="score-header-cell">{c}</div>)}
-                                                    <div className="score-header-cell">Decisión</div>
                                                 </div>
-                                                {roster.map(r => (
-                                                    <div key={r.player} className="score-player-row" style={{ gridTemplateColumns: '160px repeat(10, 1fr) 130px' }}>
-                                                        <div className="player-label">#{r.jersey_number} {r.player_name}</div>
-                                                        {PITCHING_KEYS.map(k => (
-                                                            <input
-                                                                key={k}
-                                                                type="number"
-                                                                min={0}
-                                                                className="score-input"
-                                                                value={pitching[r.player]?.[k] ?? 0}
-                                                                onChange={e => handlePitching(r.player, k, e.target.value)}
-                                                            />
-                                                        ))}
-                                                        <select
-                                                            className="score-input"
-                                                            style={{ textAlign: 'center', padding: '0.3rem 0.1rem', fontSize: '0.7rem' }}
-                                                            value={pitching[r.player]?.decision ?? ''}
-                                                            onChange={e => handlePitching(r.player, 'decision', e.target.value)}
-                                                        >
-                                                            {DECISIONS.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
-                                                        </select>
-                                                    </div>
-                                                ))}
+                                                {pitcherIds.map(pId => {
+                                                    const r = roster.find(player => player.player === pId);
+                                                    if (!r) return null;
+                                                    return (
+                                                        <div key={pId} className="score-player-row" style={{ gridTemplateColumns: 'minmax(140px, auto) repeat(20, 1fr)', minWidth: '1300px', padding: '0.2rem 0', borderTop: '1px solid var(--border)' }}>
+                                                            <div className="player-label" style={{ paddingLeft: 10, display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                                                <button 
+                                                                    onClick={() => setList(pitcherIds.filter(id => id !== pId))}
+                                                                    style={{ color: 'var(--red)', fontSize: '12px', background: 'none', border: 'none', cursor: 'pointer', padding: '0 4px' }}
+                                                                    title="Quitar"
+                                                                >✕</button>
+                                                                <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>#{r.jersey_number} {r.player_name}</span>
+                                                            </div>
+                                                            {PITCHING_KEYS.map(k => {
+                                                                const isBool = ['is_starter', 'is_reliever', 'complete_game', 'win', 'loss', 'save'].includes(k);
+                                                                return isBool ? (
+                                                                    <div key={k} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                                                        <input
+                                                                            type="checkbox"
+                                                                            checked={pitching[pId]?.[k] === true}
+                                                                            onChange={e => handlePitching(pId, k, e.target.checked)}
+                                                                            style={{ cursor: 'pointer', width: '16px', height: '16px' }}
+                                                                        />
+                                                                    </div>
+                                                                ) : (
+                                                                    <input
+                                                                        key={k}
+                                                                        type="number"
+                                                                        min={0}
+                                                                        className="score-input"
+                                                                        value={pitching[pId]?.[k] ?? 0}
+                                                                        onChange={e => handlePitching(pId, k, e.target.value)}
+                                                                    />
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    );
+                                                })}
                                             </div>
                                         )}
                                     </div>
@@ -373,23 +527,58 @@ export default function AnotacionPage() {
 
                                 {/* Decisiones del juego */}
                                 {allPitchers.length > 0 && (
-                                    <div className="card" style={{ marginTop: '1.5rem' }}>
-                                        <div className="card-body">
-                                            <h3 className="section-title">🏆 Decisiones del juego</h3>
-                                            <div className="form-grid-2">
-                                                {[
-                                                    { label: 'Pitcher ganador (W)', val: winPitcher, set: setWinPitcher },
-                                                    { label: 'Pitcher perdedor (L)', val: losePitcher, set: setLosePitcher },
-                                                    { label: 'Pitcher salvado (SV)', val: savePitcher, set: setSavePitcher },
-                                                ].map(({ label, val, set }) => (
-                                                    <div key={label} className="form-group">
-                                                        <label className="form-label">{label}</label>
-                                                        <select className="form-select" value={val} onChange={e => set(e.target.value)}>
-                                                            <option value="">— No asignar —</option>
-                                                            {pitcherOpts.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
-                                                        </select>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginTop: '1.5rem' }}>
+                                        {/* Decisiones de pitcheo */}
+                                        <div className="card">
+                                            <div className="card-body">
+                                                <h3 className="section-title">🏆 Decisiones del juego</h3>
+                                                <div className="form-grid-2">
+                                                    {[
+                                                        { label: 'Pitcher ganador (W)', val: winPitcher, set: setWinPitcher },
+                                                        { label: 'Pitcher perdedor (L)', val: losePitcher, set: setLosePitcher },
+                                                        { label: 'Pitcher salvado (SV)', val: savePitcher, set: setSavePitcher },
+                                                    ].map(({ label, val, set }) => (
+                                                        <div key={label} className="form-group">
+                                                            <label className="form-label">{label}</label>
+                                                            <select className="form-select" value={val} onChange={e => set(e.target.value)}>
+                                                                <option value="">— No asignar —</option>
+                                                                {pitcherOpts.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
+                                                            </select>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Resultado Final */}
+                                        <div className="card">
+                                            <div className="card-body">
+                                                <h3 className="section-title">📉 Resultado Final</h3>
+                                                <div className="form-grid-2">
+                                                    <div className="form-group">
+                                                        <label className="form-label">Carreras {game.away_team_name} (Vis)</label>
+                                                        <input 
+                                                            type="number" 
+                                                            className="form-input" 
+                                                            value={awayScore} 
+                                                            onChange={e => setAwayScore(parseInt(e.target.value) || 0)} 
+                                                            min={0}
+                                                        />
                                                     </div>
-                                                ))}
+                                                    <div className="form-group">
+                                                        <label className="form-label">Carreras {game.home_team_name} (Loc)</label>
+                                                        <input 
+                                                            type="number" 
+                                                            className="form-input" 
+                                                            value={homeScore} 
+                                                            onChange={e => setHomeScore(parseInt(e.target.value) || 0)} 
+                                                            min={0}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
+                                                    * Importante: Al guardar, el juego se marcará como **finalizado**.
+                                                </p>
                                             </div>
                                         </div>
                                     </div>

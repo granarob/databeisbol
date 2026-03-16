@@ -284,6 +284,8 @@ class StatsBatting(models.Model):
     cs      = models.PositiveSmallIntegerField(default=0, verbose_name='Capturado en robo (CS)')
     hbp     = models.PositiveSmallIntegerField(default=0, verbose_name='Golpeado por lanzador (HBP)')
     sf      = models.PositiveSmallIntegerField(default=0, verbose_name='Sacrificios fly (SF)')
+    sh      = models.PositiveSmallIntegerField(default=0, verbose_name='Sacrificios hit/toque (SH)')
+    ibb     = models.PositiveSmallIntegerField(default=0, verbose_name='Boletos intencionales (IBB/I)')
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -297,9 +299,9 @@ class StatsBatting(models.Model):
 
     @property
     def obp(self):
-        """On-base percentage: (H + BB + HBP) / (AB + BB + HBP + SF)"""
-        denom = self.ab + self.bb + self.hbp + self.sf
-        return round((self.h + self.bb + self.hbp) / denom, 3) if denom > 0 else 0.000
+        """On-base percentage: (H + BB + IBB + HBP) / (AB + BB + IBB + HBP + SF)"""
+        denom = self.ab + self.bb + self.ibb + self.hbp + self.sf
+        return round((self.h + self.bb + self.ibb + self.hbp) / denom, 3) if denom > 0 else 0.000
 
     @property
     def slg(self):
@@ -338,21 +340,41 @@ class StatsPitching(models.Model):
     team    = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='pitching_stats')
     player  = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='pitching_stats')
 
+    # Identificadores de rol y decisión
+    is_starter      = models.BooleanField(default=False, verbose_name='Abridor (I)')
+    is_reliever     = models.BooleanField(default=False, verbose_name='Relevista (R)')
+    complete_game   = models.BooleanField(default=False, verbose_name='Juego Completo (C)')
+    
+    win             = models.BooleanField(default=False, verbose_name='Ganado (G)')
+    loss            = models.BooleanField(default=False, verbose_name='Perdido (P)')
+    save            = models.BooleanField(default=False, verbose_name='Salvado (S)')
+
     # Métricas raw
-    ip_outs = models.PositiveSmallIntegerField(default=0, verbose_name='Outs lanzados (IP×3)', help_text='1.1 IP = 4 outs, 3 IP = 9 outs')
-    h       = models.PositiveSmallIntegerField(default=0, verbose_name='Hits permitidos')
-    r       = models.PositiveSmallIntegerField(default=0, verbose_name='Carreras totales')
-    er      = models.PositiveSmallIntegerField(default=0, verbose_name='Carreras limpias (ER)')
-    bb      = models.PositiveSmallIntegerField(default=0, verbose_name='Boletos (BB)')
-    so      = models.PositiveSmallIntegerField(default=0, verbose_name='Ponches (SO)')
-    hr      = models.PositiveSmallIntegerField(default=0, verbose_name='Jonrones permitidos (HR)')
-    wp      = models.PositiveSmallIntegerField(default=0, verbose_name='Wild Pitch (WP)')
-    bk      = models.PositiveSmallIntegerField(default=0, verbose_name='Balks (BK)')
-    hbp     = models.PositiveSmallIntegerField(default=0, verbose_name='Golpeados (HBP)')
+    ab_against = models.PositiveSmallIntegerField(default=0, verbose_name='Veces al bate (VB)')
+    ip_outs    = models.PositiveSmallIntegerField(default=0, verbose_name='Outs lanzados (IP×3)')
+    h          = models.PositiveSmallIntegerField(default=0, verbose_name='Hits (HP)')
+    r          = models.PositiveSmallIntegerField(default=0, verbose_name='Carreras (CP)')
+    er         = models.PositiveSmallIntegerField(default=0, verbose_name='Carreras limpias (CL)')
+    bb         = models.PositiveSmallIntegerField(default=0, verbose_name='Boletos (BB)')
+    so         = models.PositiveSmallIntegerField(default=0, verbose_name='Ponches (K)')
+    
+    h2_allowed = models.PositiveSmallIntegerField(default=0, verbose_name='Dobles (H2)')
+    h3_allowed = models.PositiveSmallIntegerField(default=0, verbose_name='Triples (H3)')
+    hr         = models.PositiveSmallIntegerField(default=0, verbose_name='Jonrones (HR)')
+    
+    sh_allowed = models.PositiveSmallIntegerField(default=0, verbose_name='Sacrificios toque (SH)')
+    sf_allowed = models.PositiveSmallIntegerField(default=0, verbose_name='Sacrificios fly (SF)')
+    hbp        = models.PositiveSmallIntegerField(default=0, verbose_name='Golpeados (GP)')
+    
+    pitch_count = models.PositiveIntegerField(default=0, verbose_name='Lanzamientos (LZ)')
+
+    # Otros (compatibilidad anterior)
+    wp         = models.PositiveSmallIntegerField(default=0, verbose_name='Wild Pitch (WP)')
+    bk         = models.PositiveSmallIntegerField(default=0, verbose_name='Balks (BK)')
 
     decision = models.CharField(
         max_length=4, choices=Decision.choices,
-        null=True, blank=True, verbose_name='Decisión del juego'
+        null=True, blank=True, verbose_name='Decisión (Legacy)'
     )
 
     # -------------------------------------------------------

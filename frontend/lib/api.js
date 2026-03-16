@@ -102,3 +102,17 @@ export async function getLeagues() {
 export async function getLeague(id) {
     return apiFetch(`/leagues/${id}/`);
 }
+
+// ─── HOME PAGE ───────────────────────────────────────────
+export async function getUpcomingGames() {
+    return apiFetch('/games/upcoming/') ?? [];
+}
+
+export async function getGlobalSummary() {
+    return apiFetch('/games/summary/') ?? { players_count: 0, leagues_count: 0, games_count: 0 };
+}
+
+export async function searchPlayers(query) {
+    if (!query || query.length < 2) return { results: [] };
+    return apiFetch(`/players/?search=${encodeURIComponent(query)}`) ?? { results: [] };
+}

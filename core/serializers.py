@@ -160,7 +160,7 @@ class StatsBattingSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'game', 'team', 'player', 'player_name',
             'pa', 'ab', 'r', 'h', 'doubles', 'triples', 'hr',
-            'rbi', 'bb', 'so', 'sb', 'cs', 'hbp', 'sf',
+            'rbi', 'bb', 'so', 'sb', 'cs', 'hbp', 'sf', 'sh', 'ibb',
             'avg', 'obp', 'slg', 'ops',
             'created_at',
         ]
@@ -182,8 +182,11 @@ class StatsPitchingSerializer(serializers.ModelSerializer):
         model  = StatsPitching
         fields = [
             'id', 'game', 'team', 'player', 'player_name',
-            'ip_outs', 'ip_display', 'h', 'r', 'er', 'bb', 'so',
-            'hr', 'wp', 'bk', 'hbp', 'decision',
+            'is_starter', 'is_reliever', 'complete_game',
+            'win', 'loss', 'save',
+            'ab_against', 'ip_outs', 'ip_display', 'r', 'er', 'h', 'bb', 'so',
+            'h2_allowed', 'h3_allowed', 'hr', 'sh_allowed', 'sf_allowed', 'hbp',
+            'pitch_count', 'wp', 'bk', 'decision',
             'era', 'whip',
         ]
 
