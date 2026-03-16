@@ -58,8 +58,8 @@ class PlayerAdmin(admin.ModelAdmin):
 
 @admin.register(Roster)
 class RosterAdmin(admin.ModelAdmin):
-    list_display  = ['jersey_number', 'player', 'team', 'position', 'is_active']
-    list_filter   = ['team', 'position', 'is_active']
+    list_display  = ['jersey_number', 'player', 'team', 'is_active']
+    list_filter   = ['team', 'is_active']
     search_fields = ['player__first_name', 'player__last_name']
 
 
@@ -90,8 +90,8 @@ class StatsPitchingInline(admin.TabularInline):
 
 @admin.register(StatsBatting)
 class StatsBattingAdmin(admin.ModelAdmin):
-    list_display  = ['player', 'game', 'ab', 'h', 'hr', 'rbi', 'bb', 'so']
-    list_filter   = ['game__season', 'team']
+    list_display  = ['player', 'game', 'position', 'ab', 'h', 'hr', 'rbi', 'bb', 'so']
+    list_filter   = ['game__season', 'team', 'position']
     search_fields = ['player__first_name', 'player__last_name']
 
 

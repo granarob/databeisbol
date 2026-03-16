@@ -196,6 +196,16 @@ export default function AnotacionPage() {
 
             const activeBatters = [...homeLineup, ...awayLineup];
 
+            // Validar posiciones
+            for (const pId of activeBatters) {
+                if (!batting[pId]?.position) {
+                    const r = allRosters.find(x => x.player === pId);
+                    setError(`El jugador ${r?.player_name || 'Desconocido'} no tiene posición asignada en el Lineup.`);
+                    setSaving(false);
+                    return;
+                }
+            }
+
             // Subir stats de bateo (solo jugadores con al menos 1 PA o que estén en el lineup)
             const battingPromises = allRosters.map(async r => {
                 const stats = batting[r.player];
@@ -310,7 +320,32 @@ export default function AnotacionPage() {
                     <>
                         {/* Info del juego */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-                            <div style={{ background: 'var(--bg-elevated)', padding: '0.75rem 1.25rem', borderRadius: 'var(--radius)', fontSize: '1.25rem', fontFamily: 'Bebas Neue', letterSpacing: 2 }}>
+                            {/* Pizarra del marcador */}
+                            <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', overflow: 'hidden' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', background: 'rgba(0,0,0,0.3)', padding: '0.4rem 0.8rem' }}>
+                                    <span style={{ fontSize: '0.65rem', fontWeight: 600, color: 'var(--text-dim)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: '2px' }}>V ({game.away_team_name.substring(0,3).toUpperCase()})</span>
+                                    <input 
+                                        type="number" 
+                                        min="0"
+                                        style={{ width: '45px', textAlign: 'center', fontFamily: 'Bebas Neue', fontSize: '1.5rem', background: 'transparent', border: 'none', color: '#fff', outline: 'none' }}
+                                        value={awayScore}
+                                        onChange={e => setAwayScore(parseInt(e.target.value) || 0)}
+                                    />
+                                </div>
+                                <div style={{ padding: '0 0.5rem', color: 'var(--text-muted)' }}>-</div>
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', background: 'rgba(0,0,0,0.3)', padding: '0.4rem 0.8rem' }}>
+                                    <span style={{ fontSize: '0.65rem', fontWeight: 600, color: 'var(--text-dim)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: '2px' }}>L ({game.home_team_name.substring(0,3).toUpperCase()})</span>
+                                    <input 
+                                        type="number" 
+                                        min="0"
+                                        style={{ width: '45px', textAlign: 'center', fontFamily: 'Bebas Neue', fontSize: '1.5rem', background: 'transparent', border: 'none', color: 'var(--gold)', outline: 'none' }}
+                                        value={homeScore}
+                                        onChange={e => setHomeScore(parseInt(e.target.value) || 0)}
+                                    />
+                                </div>
+                            </div>
+                            
+                            <div style={{ fontSize: '1.25rem', fontFamily: 'Bebas Neue', letterSpacing: 2 }}>
                                 {game.away_team_name} <span style={{ color: 'var(--text-muted)' }}>@</span> {game.home_team_name}
                             </div>
                             <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
@@ -385,8 +420,9 @@ export default function AnotacionPage() {
                                         ) : (
                                             <div style={{ overflowX: 'auto', border: '1px solid var(--border)', borderRadius: '8px', background: 'rgba(0,0,0,0.2)' }}>
                                                 {/* Header */}
-                                                <div className="score-header-row" style={{ gridTemplateColumns: 'minmax(200px, auto) repeat(16, 1fr)', minWidth: '1100px', background: 'var(--bg-elevated)', padding: '0.5rem 0' }}>
+                                                <div className="score-header-row" style={{ gridTemplateColumns: 'minmax(200px, auto) 65px repeat(16, 1fr)', minWidth: '1165px', background: 'var(--bg-elevated)', padding: '0.5rem 0' }}>
                                                     <div className="score-header-cell" style={{ textAlign: 'left', paddingLeft: 10 }}>Turno / Jugador</div>
+                                                    <div className="score-header-cell">Pos.</div>
                                                     {BATTING_COLS.map(c => <div key={c} className="score-header-cell">{c}</div>)}
                                                 </div>
                                                 {/* Rows */}
@@ -394,7 +430,7 @@ export default function AnotacionPage() {
                                                     const r = roster.find(player => player.player === pId);
                                                     if (!r) return null;
                                                     return (
-                                                        <div key={pId} className="score-player-row" style={{ gridTemplateColumns: 'minmax(200px, auto) repeat(16, 1fr)', minWidth: '1100px', padding: '0.2rem 0', borderTop: '1px solid var(--border)' }}>
+                                                        <div key={pId} className="score-player-row" style={{ gridTemplateColumns: 'minmax(200px, auto) 65px repeat(16, 1fr)', minWidth: '1165px', padding: '0.2rem 0', borderTop: '1px solid var(--border)' }}>
                                                             <div className="player-label" style={{ paddingLeft: 10, display: 'flex', alignItems: 'center', gap: '8px' }}>
                                                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                                                                     <button onClick={() => moveLineupPlayer(type, index, 'up')} disabled={index === 0} style={{ background: 'none', border: 'none', color: index === 0 ? 'rgba(255,255,255,0.1)' : 'var(--text-muted)', cursor: index === 0 ? 'default' : 'pointer', padding: 0, fontSize: '10px' }}>▲</button>
@@ -403,6 +439,19 @@ export default function AnotacionPage() {
                                                                 <button onClick={() => removeLineupPlayer(type, pId)} style={{ color: 'var(--red)', fontSize: '12px', background: 'none', border: 'none', cursor: 'pointer', padding: '0 4px' }} title="Quitar">✕</button>
                                                                 <span style={{ color: 'var(--accent)', fontWeight: 700, fontSize: '0.85rem', width: '15px' }}>{index + 1}.</span>
                                                                 <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>#{r.jersey_number} {r.player_name}</span>
+                                                            </div>
+                                                            <div style={{ display: 'flex', alignItems: 'center', padding: '0 4px' }}>
+                                                                <select 
+                                                                    className="score-input" 
+                                                                    style={{ padding: '0.2rem', fontSize: '0.7rem', width: '100%', cursor: 'pointer', textAlign: 'center', background: 'var(--bg-card)', color: 'var(--text)' }}
+                                                                    value={batting[r.player]?.position || ''}
+                                                                    onChange={e => handleBatting(r.player, 'position', e.target.value)}
+                                                                >
+                                                                    <option value="">-</option>
+                                                                    {['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'DH', 'PH', 'PR', 'UT'].map(p => (
+                                                                        <option key={p} value={p}>{p}</option>
+                                                                    ))}
+                                                                </select>
                                                             </div>
                                                             {BATTING_KEYS.map(k => (
                                                                 <input
@@ -418,8 +467,9 @@ export default function AnotacionPage() {
                                                     );
                                                 })}
                                                 {/* Fila de totales */}
-                                                <div className="score-player-row" style={{ gridTemplateColumns: 'minmax(200px, auto) repeat(16, 1fr)', minWidth: '1100px', background: 'rgba(212,175,55,0.07)', borderTop: '1px solid var(--border)', padding: '0.5rem 0' }}>
+                                                <div className="score-player-row" style={{ gridTemplateColumns: 'minmax(200px, auto) 65px repeat(16, 1fr)', minWidth: '1165px', background: 'rgba(212,175,55,0.07)', borderTop: '1px solid var(--border)', padding: '0.5rem 0' }}>
                                                     <div className="player-label" style={{ paddingLeft: 10, fontWeight: 700, color: 'var(--gold)', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: 0.5 }}>TOTALES DEL EQUIPO</div>
+                                                    <div></div>
                                                     {BATTING_KEYS.map(k => (
                                                         <div key={k} className="score-input" style={{ textAlign: 'center', fontFamily: 'Bebas Neue', fontSize: '1rem', color: 'var(--gold)', padding: '0 0.25rem' }}>
                                                             {calcTotals(roster.filter(r => lineup.includes(r.player)), batting, k)}

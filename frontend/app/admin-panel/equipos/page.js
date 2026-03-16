@@ -18,8 +18,6 @@ function RosterModal({ team, onClose }) {
             });
     }, [authFetch, team.id]);
 
-    const POS_COLOR = { P: 'var(--accent)', C: 'var(--gold)', '1B': '#7c3aed', '2B': '#0891b2', '3B': '#dc2626', SS: '#16a34a', LF: '#d97706', CF: '#0284c7', RF: '#7c3aed', DH: '#be185d', UT: '#6b7280' };
-
     return (
         <div className="modal-backdrop" onClick={e => e.target === e.currentTarget && onClose()}>
             <div className="modal" style={{ maxWidth: 560, width: '95vw' }}>
@@ -49,7 +47,6 @@ function RosterModal({ team, onClose }) {
                                 <tr>
                                     <th>#</th>
                                     <th>Jugador</th>
-                                    <th style={{ textAlign: 'center' }}>Pos.</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -63,19 +60,6 @@ function RosterModal({ team, onClose }) {
                                                 </strong>
                                             </td>
                                             <td>{r.player_name}</td>
-                                            <td style={{ textAlign: 'center' }}>
-                                                <span style={{
-                                                    background: POS_COLOR[r.position] ?? 'var(--bg-elevated)',
-                                                    color: '#fff',
-                                                    padding: '0.15rem 0.45rem',
-                                                    borderRadius: 4,
-                                                    fontSize: '0.72rem',
-                                                    fontWeight: 700,
-                                                    letterSpacing: 0.5,
-                                                }}>
-                                                    {r.position}
-                                                </span>
-                                            </td>
                                         </tr>
                                     ))}
                             </tbody>

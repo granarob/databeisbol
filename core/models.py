@@ -165,24 +165,9 @@ class Roster(models.Model):
     Tabla pivote histórica: asigna un jugador a un equipo por temporada.
     Permite que el jugador cambie de equipo sin perder su historial.
     """
-    POSITION_CHOICES = [
-        ('P',  'Pitcher'),
-        ('C',  'Catcher'),
-        ('1B', 'Primera base'),
-        ('2B', 'Segunda base'),
-        ('3B', 'Tercera base'),
-        ('SS', 'Shortstop'),
-        ('LF', 'Left Field'),
-        ('CF', 'Center Field'),
-        ('RF', 'Right Field'),
-        ('DH', 'Designated Hitter'),
-        ('UT', 'Utility'),
-    ]
-
     team         = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='rosters')
     player       = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='rosters')
     jersey_number = models.PositiveSmallIntegerField(verbose_name='Número de dorsal')
-    position     = models.CharField(max_length=2, choices=POSITION_CHOICES, verbose_name='Posición')
     is_active    = models.BooleanField(default=True)
 
     class Meta:
@@ -268,6 +253,16 @@ class StatsBatting(models.Model):
     game    = models.ForeignKey(Game, on_delete=models.CASCADE, related_name='batting_stats')
     team    = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='batting_stats')
     player  = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='batting_stats')
+
+    # Posición jugada
+    POSITION_CHOICES = [
+        ('P',  'Pitcher'), ('C',  'Catcher'), ('1B', 'Primera base'),
+        ('2B', 'Segunda base'), ('3B', 'Tercera base'), ('SS', 'Shortstop'),
+        ('LF', 'Left Field'), ('CF', 'Center Field'), ('RF', 'Right Field'),
+        ('DH', 'Designado'), ('PH', 'Pinch Hitter'), ('PR', 'Pinch Runner'), 
+        ('UT', 'Utility')
+    ]
+    position = models.CharField(max_length=2, choices=POSITION_CHOICES, blank=True, null=True, verbose_name='Posición jugada')
 
     # Métricas raw
     pa      = models.PositiveSmallIntegerField(default=0, verbose_name='Apariciones al plato (PA)')

@@ -2,21 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/lib/auth-context';
 
-const POSITIONS = [
-    { value: 'P', label: 'P — Pitcher' },
-    { value: 'C', label: 'C — Catcher' },
-    { value: '1B', label: '1B — Primera base' },
-    { value: '2B', label: '2B — Segunda base' },
-    { value: '3B', label: '3B — Tercera base' },
-    { value: 'SS', label: 'SS — Shortstop' },
-    { value: 'LF', label: 'LF — Left Field' },
-    { value: 'CF', label: 'CF — Center Field' },
-    { value: 'RF', label: 'RF — Right Field' },
-    { value: 'DH', label: 'DH — Designated Hitter' },
-    { value: 'UT', label: 'UT — Utility' },
-];
-
-const EMPTY_FORM = { team: '', player: '', jersey_number: '', position: 'P', is_active: true };
+const EMPTY_FORM = { team: '', player: '', jersey_number: '', is_active: true };
 
 /* ── Modal de create/edit ─────────────────────────────────── */
 function RosterModal({ item, teams, allPlayers, onClose, onSaved, authFetch }) {
@@ -33,7 +19,7 @@ function RosterModal({ item, teams, allPlayers, onClose, onSaved, authFetch }) {
     );
 
     const handleSave = async () => {
-        if (!form.team || !form.player || !form.position || form.jersey_number === '') {
+        if (!form.team || !form.player || form.jersey_number === '') {
             setError('Completa todos los campos obligatorios.');
             return;
         }
@@ -131,13 +117,6 @@ function RosterModal({ item, teams, allPlayers, onClose, onSaved, authFetch }) {
                             />
                         </div>
 
-                        {/* Posición */}
-                        <div className="form-group">
-                            <label className="form-label">Posición <span style={{ color: 'var(--accent)' }}>*</span></label>
-                            <select className="form-select" value={form.position} onChange={e => setForm(f => ({ ...f, position: e.target.value }))}>
-                                {POSITIONS.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
-                            </select>
-                        </div>
                     </div>
 
                     {/* Activo */}
@@ -196,8 +175,6 @@ export default function RostersPage() {
         await load();
     };
 
-    const POS_COLOR = { P: 'var(--accent)', C: 'var(--gold)', '1B': '#7c3aed', '2B': '#0891b2', '3B': '#dc2626', SS: '#16a34a', LF: '#d97706', CF: '#0284c7', RF: '#7c3aed', DH: '#be185d', UT: '#6b7280' };
-
     return (
         <>
             <div className="admin-topbar"><h1>Gestión de Rosters</h1></div>
@@ -237,7 +214,6 @@ export default function RostersPage() {
                                     <th>#</th>
                                     <th>Jugador</th>
                                     <th>Equipo</th>
-                                    <th style={{ textAlign: 'center' }}>Pos.</th>
                                     <th style={{ textAlign: 'center' }}>Activo</th>
                                     <th>Acciones</th>
                                 </tr>
@@ -248,11 +224,6 @@ export default function RostersPage() {
                                         <td><strong style={{ color: 'var(--gold)', fontFamily: 'Bebas Neue', fontSize: '1rem', letterSpacing: 1 }}>#{item.jersey_number}</strong></td>
                                         <td>{item.player_name}</td>
                                         <td style={{ fontSize: '0.85rem', color: 'var(--text-dim)' }}>{item.team_name}</td>
-                                        <td style={{ textAlign: 'center' }}>
-                                            <span style={{ background: POS_COLOR[item.position] ?? 'var(--bg-elevated)', color: '#fff', padding: '0.15rem 0.45rem', borderRadius: 4, fontSize: '0.72rem', fontWeight: 700 }}>
-                                                {item.position}
-                                            </span>
-                                        </td>
                                         <td style={{ textAlign: 'center' }}>{item.is_active ? '✅' : '❌'}</td>
                                         <td>
                                             <div style={{ display: 'flex', gap: '0.5rem' }}>

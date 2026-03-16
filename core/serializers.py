@@ -106,7 +106,7 @@ class RosterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model  = Roster
-        fields = ['id', 'team', 'team_name', 'player', 'player_name', 'jersey_number', 'position', 'is_active']
+        fields = ['id', 'team', 'team_name', 'player', 'player_name', 'jersey_number', 'is_active']
 
 
 # ===========================================================
@@ -158,7 +158,7 @@ class StatsBattingSerializer(serializers.ModelSerializer):
     class Meta:
         model  = StatsBatting
         fields = [
-            'id', 'game', 'team', 'player', 'player_name',
+            'id', 'game', 'team', 'player', 'player_name', 'position',
             'pa', 'ab', 'r', 'h', 'doubles', 'triples', 'hr',
             'rbi', 'bb', 'so', 'sb', 'cs', 'hbp', 'sf', 'sh', 'ibb',
             'avg', 'obp', 'slg', 'ops',
