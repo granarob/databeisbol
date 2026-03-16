@@ -3,6 +3,8 @@ import LeaguesCarousel from '@/components/LeaguesCarousel';
 import PlayerSearch from '@/components/PlayerSearch';
 import UpcomingGames from '@/components/UpcomingGames';
 import StatsCounters from '@/components/StatsCounters';
+import TickerResultados from '@/components/TickerResultados';
+import StandingsTable from '@/components/StandingsTable';
 import { Newspaper } from 'lucide-react';
 
 export default async function HomePage() {
@@ -25,6 +27,9 @@ export default async function HomePage() {
 
   return (
     <div className="home-page">
+      {/* ── TICKER DE RESULTADOS ── */}
+      <TickerResultados games={games} />
+
       {/* ── A. HERO SECTION ── */}
       <header className="home-hero animate-in fade-in">
         <div className="container home-hero__inner">
@@ -44,13 +49,16 @@ export default async function HomePage() {
       {/* ── LEAGUES CAROUSEL (se preserva intacto) ── */}
       <LeaguesCarousel leagues={leagues} recentGames={games} heroMode />
 
-      {/* ── B. PRÓXIMOS JUEGOS ── */}
+      {/* ── B. TABLA DE POSICIONES ── */}
+      <StandingsTable leagues={leagues} />
+
+      {/* ── C. PRÓXIMOS JUEGOS ── */}
       <UpcomingGames games={upcoming} />
 
-      {/* ── C. NUESTROS NÚMEROS ── */}
+      {/* ── D. NUESTROS NÚMEROS ── */}
       <StatsCounters summary={summary} />
 
-      {/* ── D. NOTICIAS / BLOG ── */}
+      {/* ── E. NOTICIAS / BLOG ── */}
       <section className="news-section">
         <div className="container">
           <h2 className="section-title">Noticias y Consejos</h2>
