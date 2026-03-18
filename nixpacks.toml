@@ -5,15 +5,18 @@ pythonVersion = "3.11"
     WSGI_APPLICATION = "config.wsgi.application"
     DJANGO_SETTINGS_MODULE = "config.settings"
     PYTHONPATH = "."
+    NIXPACKS_DJANGO_WSGI_APPLICATION = "config.wsgi.application"
 
 [phases.build]
 cmds = [
   "pip install -r requirements.txt",
-  "python manage.py collectstatic --no-input --clear",
+  "python manage.py collectstatic --no-input --clear"
 ]
 
 [phases.setup]
-cmds = ["python manage.py migrate --no-input"]
+cmds = [
+  "python manage.py migrate --no-input"
+]
 
 [start]
 cmd = "gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 60"
