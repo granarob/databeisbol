@@ -24,7 +24,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Recopila archivos estáticos (Django)
-RUN python manage.py collectstatic --no-input
+RUN SECRET_KEY=dummy-key-for-build python manage.py collectstatic --no-input
 
 # Expone el puerto (informativo, Railway asigna el real)
 EXPOSE 8000
