@@ -5,6 +5,7 @@ import UpcomingGames from '@/components/UpcomingGames';
 import StatsCounters from '@/components/StatsCounters';
 import TickerResultados from '@/components/TickerResultados';
 import StandingsTable from '@/components/StandingsTable';
+import AnimatedSection from '@/components/AnimatedSection';
 import { Newspaper } from 'lucide-react';
 
 export default async function HomePage() {
@@ -50,16 +51,22 @@ export default async function HomePage() {
       <LeaguesCarousel leagues={leagues} recentGames={games} heroMode />
 
       {/* ── B. TABLA DE POSICIONES ── */}
-      <StandingsTable leagues={leagues} />
+      <AnimatedSection>
+        <StandingsTable leagues={leagues} />
+      </AnimatedSection>
 
       {/* ── C. PRÓXIMOS JUEGOS ── */}
-      <UpcomingGames games={upcoming} />
+      <AnimatedSection delay={0.1}>
+        <UpcomingGames games={upcoming} />
+      </AnimatedSection>
 
       {/* ── D. NUESTROS NÚMEROS ── */}
-      <StatsCounters summary={summary} />
+      <AnimatedSection delay={0.2}>
+        <StatsCounters summary={summary} />
+      </AnimatedSection>
 
       {/* ── E. NOTICIAS / BLOG ── */}
-      <section className="news-section">
+      <AnimatedSection className="news-section">
         <div className="container">
           <h2 className="section-title">Noticias y Consejos</h2>
           <div className="news-grid">
@@ -97,7 +104,7 @@ export default async function HomePage() {
             ))}
           </div>
         </div>
-      </section>
+      </AnimatedSection>
     </div>
   );
 }

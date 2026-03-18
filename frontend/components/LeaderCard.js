@@ -14,7 +14,11 @@ export default function LeaderCard({ title, players = [], statKey, format, rever
   };
 
   return (
-    <div className="bg-surface border border-white/5 rounded-2xl overflow-hidden shadow-xl hover:shadow-accent/5 transition-shadow">
+    <motion.div 
+      whileHover={{ y: -5, scale: 1.01 }}
+      transition={{ type: "spring", stiffness: 400, damping: 17 }}
+      className="bg-surface border border-white/5 rounded-2xl overflow-hidden shadow-xl hover:shadow-accent/5 transition-shadow"
+    >
       <div className="bg-accent/10 border-b border-white/5 px-5 py-4">
         <h3 className="text-lg font-bebas tracking-wider text-accent uppercase flex items-center justify-between">
           {title}
@@ -68,7 +72,7 @@ export default function LeaderCard({ title, players = [], statKey, format, rever
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
 

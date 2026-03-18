@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 
 /**
  * BarChart Component
@@ -48,6 +48,8 @@ export function BarChart({ metricLabel, valueA, valueB, nameA, nameB, higherIsBe
  * A radar (spider) chart for multidimensional comparisons.
  */
 export function RadarChart({ size = 300, dataA, dataB, labels, nameA, nameB }) {
+    const [tooltip, setTooltip] = useState({ show: false, x: 0, y: 0, value: 0, label: '', color: '' });
+    
     const padding = 40;
     const center = size / 2;
     const radius = center - padding;
@@ -77,8 +79,23 @@ export function RadarChart({ size = 300, dataA, dataB, labels, nameA, nameB }) {
     // Ejes y Niveles (telaraña)
     const levels = [20, 40, 60, 80, 100];
 
+    const handleHover = (show, e, val, label, color) => {
+        if (!show) {
+            setTooltip({ ...tooltip, show: false });
+            return;
+        }
+        setTooltip({
+            show: true,
+            x: e.target.cx.baseVal.value,
+            y: e.target.cy.baseVal.value,
+            value: val,
+            label: label,
+            color: color
+        });
+    };
+
     return (
-        <div className="radar-chart-container">
+        <div className="radar-chart-container" style={{ position: 'relative' }}>
             <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="radar-svg">
                 {/* Telaraña de niveles */}
                 {levels.map(lvl => (
@@ -117,23 +134,56 @@ export function RadarChart({ size = 300, dataA, dataB, labels, nameA, nameB }) {
                 })}
 
                 {/* Área Jugador B (debajo de A para que A resalte más) */}
-                <polygon
-                    points={pointsB}
-                    className="radar-area-b"
-                />
+                <polygon points={pointsB} className="radar-area-b" />
 
                 {/* Área Jugador A */}
-                <polygon
-                    points={pointsA}
-                    className="radar-area-a"
-                />
+                <polygon points={pointsA} className="radar-area-a" />
+
+                {/* Puntos de datos Jugador B */}
+                {dataB.map((v, i) => {
+                    const c = getCoords(v, i);
+                    return (
+                        <circle 
+                            key={`b-${i}`} 
+                            cx={c.x} cy={c.y} r="5" 
+                            className="radar-dot-b"
+                            onMouseEnter={(e) => handleHover(true, e, v, labels[i], 'var(--red)')}
+                            onMouseLeave={() => handleHover(false)}
+                            style={{ cursor: 'pointer', pointerEvents: 'all' }}
+                        />
+                    );
+                })}
 
                 {/* Puntos de datos Jugador A */}
                 {dataA.map((v, i) => {
                     const c = getCoords(v, i);
-                    return <circle key={`a-${i}`} cx={c.x} cy={c.y} r="3" className="radar-dot-a" />;
+                    return (
+                        <circle 
+                            key={`a-${i}`} 
+                            cx={c.x} cy={c.y} r="5" 
+                            className="radar-dot-a"
+                            onMouseEnter={(e) => handleHover(true, e, v, labels[i], 'var(--accent)')}
+                            onMouseLeave={() => handleHover(false)}
+                            style={{ cursor: 'pointer', pointerEvents: 'all' }}
+                        />
+                    );
                 })}
             </svg>
+
+            {/* Tooltip Dinámico */}
+            {tooltip.show && (
+                <div 
+                    className="radar-tooltip"
+                    style={{
+                        left: tooltip.x,
+                        top: tooltip.y - 10,
+                        borderColor: tooltip.color
+                    }}
+                >
+                    <div className="rt-label">{tooltip.label}</div>
+                    <div className="rt-value" style={{ color: tooltip.color }}>{tooltip.value}%</div>
+                </div>
+            )}
 
             <div className="radar-legend">
                 <div className="legend-item"><span className="dot dot-a"></span> {nameA}</div>

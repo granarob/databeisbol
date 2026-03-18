@@ -1,9 +1,14 @@
 providers = ["python"]
 pythonVersion = "3.11"
 
+[variables]
+    WSGI_APPLICATION = "config.wsgi.application"
+    DJANGO_SETTINGS_MODULE = "config.settings"
+    PYTHONPATH = "."
+
 [phases.build]
 cmds = [
-  "pip install -r requirements-prod.txt",
+  "pip install -r requirements.txt",
   "python manage.py collectstatic --no-input --clear",
 ]
 
