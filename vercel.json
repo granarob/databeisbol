@@ -1,36 +1,6 @@
 {
-    "builds": [
-        {
-            "src": "api/index.py",
-            "use": "@vercel/python"
-        },
-        {
-            "src": "frontend/package.json",
-            "use": "@vercel/next"
-        }
-    ],
-    "rewrites": [
-        {
-            "source": "/api/v1/(.*)",
-            "destination": "/api/index.py"
-        },
-        {
-            "source": "/admin/(.*)",
-            "destination": "/api/index.py"
-        },
-        {
-            "source": "/static/(.*)",
-            "destination": "/api/index.py"
-        },
-        {
-            "source": "/(.*)",
-            "destination": "/frontend/$1"
-        }
-    ],
-    "env": {
-        "DJANGO_SETTINGS_MODULE": "config.settings"
-    },
-    "regions": [
-        "iad1"
-    ]
+  "version": 2,
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/.next",
+  "framework": "nextjs"
 }
