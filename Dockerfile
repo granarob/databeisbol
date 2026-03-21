@@ -26,8 +26,9 @@ COPY . .
 # Recopila archivos estáticos (Django)
 RUN SECRET_KEY=dummy-key-for-build python manage.py collectstatic --no-input
 
-# Expone el puerto (informativo, Railway asigna el real)
+# Puerto por defecto (Railway lo sobreescribe con su $PORT)
+ENV PORT=8000
 EXPOSE 8000
 
-# Comando para arrancar la aplicación usando el puerto de Railway
-CMD gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 2 --timeout 60
+# Comando para arrancar la aplicación
+CMD ["sh", "-c", "gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 60"]
