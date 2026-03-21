@@ -39,8 +39,8 @@ MIDDLEWARE = [
 # ─── CORS ───────────────────────────────────────────────────────
 _cors_origins = config('CORS_ALLOWED_ORIGINS', default='http://localhost:3000,http://127.0.0.1:3000', cast=Csv())
 CORS_ALLOWED_ORIGINS = list(_cors_origins) + [
-    'https://dirty-rules-sin.loca.lt',  # Frontend tunnel
-    'https://full-roses-sin.loca.lt',   # Backend tunnel
+    'https://databeisbol-d51z.vercel.app',      # Frontend producción
+    'https://web-production-fa4f.up.railway.app', # Backend Railway
 ]
 CORS_ALLOW_ALL_ORIGINS = True  # Temporal para preview público
 CORS_ALLOW_CREDENTIALS = True
@@ -48,7 +48,7 @@ CORS_ALLOW_CREDENTIALS = True
 # ─── CSRF TRUSTED ORIGINS (Vercel) ──────────────────────────────
 CSRF_TRUSTED_ORIGINS = config(
     'CSRF_TRUSTED_ORIGINS',
-    default='https://*.vercel.app,https://*.up.railway.app,http://localhost:3000,http://127.0.0.1:3000',
+    default='https://*.vercel.app,https://*.up.railway.app,https://databeisbol-d51z.vercel.app,http://localhost:3000,http://127.0.0.1:3000',
     cast=Csv()
 )
 
