@@ -41,7 +41,7 @@ export default async function HomePage() {
           <p className="home-hero__subtitle animate-in slide-up delay-200">
             Plataforma de estadísticas en tiempo real para ligas de formación
           </p>
-          <div className="animate-in slide-up delay-300">
+          <div className="animate-in slide-up delay-300 w-full max-w-[540px] mx-auto">
             <PlayerSearch />
           </div>
         </div>
