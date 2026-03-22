@@ -69,7 +69,7 @@ export default function PlayerSearch() {
           id="global-player-search"
           type="text"
           className="player-search-input"
-          placeholder="Busca a un pelotero por nombre..."
+          placeholder="Busca a un pelotero por nombre"
           value={query}
           onChange={handleChange}
           onFocus={() => results.length > 0 && setOpen(true)}

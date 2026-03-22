@@ -2260,10 +2260,13 @@ img {
   color: var(--text);
   outline: none;
   transition: border-color var(--transition), box-shadow var(--transition);
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .player-search-input::placeholder {
   color: var(--text-muted);
+  text-overflow: ellipsis;
 }
 
 .player-search-input:focus {
