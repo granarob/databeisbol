@@ -28,6 +28,7 @@ class UserAdmin(BaseUserAdmin):
 class LeagueAdmin(admin.ModelAdmin):
     list_display  = ['name', 'city', 'country', 'admin']
     search_fields = ['name']
+    fields        = ['name', 'country', 'city', 'admin']
 
 
 @admin.register(Season)
@@ -44,16 +45,42 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin):
-    list_display  = ['name', 'short_name', 'category', 'season', 'won', 'lost', 'tied']
+    list_display  = ['name', 'short_name', 'category', 'season', 'won', 'lost', 'tied', 'logo_preview']
     list_filter   = ['season', 'category']
     search_fields = ['name', 'short_name']
+    readonly_fields = ['logo_url', 'logo_preview']
+    fields        = [
+        'name', 'short_name', 'category', 'season', 'manager_name',
+        'logo_upload', 'logo_preview', 'logo_url',
+        'won', 'lost', 'tied',
+    ]
+
+    @admin.display(description='Logo actual')
+    def logo_preview(self, obj):
+        from django.utils.html import format_html
+        if obj.logo_url:
+            return format_html('<img src="{}" style="height:40px;border-radius:4px;" />', obj.logo_url)
+        return '—'
 
 
 @admin.register(Player)
 class PlayerAdmin(admin.ModelAdmin):
-    list_display  = ['last_name', 'first_name', 'birth_date', 'bats_hand', 'throws_hand']
+    list_display  = ['last_name', 'first_name', 'birth_date', 'bats_hand', 'throws_hand', 'photo_preview']
     search_fields = ['first_name', 'last_name']
     list_filter   = ['bats_hand', 'throws_hand']
+    readonly_fields = ['photo_url', 'photo_preview']
+    fields        = [
+        'first_name', 'last_name', 'birth_date',
+        'height_cm', 'weight_kg', 'bats_hand', 'throws_hand',
+        'bio', 'photo_upload', 'photo_preview', 'photo_url',
+    ]
+
+    @admin.display(description='Foto actual')
+    def photo_preview(self, obj):
+        from django.utils.html import format_html
+        if obj.photo_url:
+            return format_html('<img src="{}" style="height:60px;border-radius:50%;" />', obj.photo_url)
+        return '—'
 
 
 @admin.register(Roster)

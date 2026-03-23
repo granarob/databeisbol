@@ -2197,8 +2197,15 @@ img {
 /* ─── Hero Section ─── */
 .home-hero {
   text-align: center;
-  padding: var(--space-6) var(--space-3) var(--space-4);
-  background: linear-gradient(180deg, #0d1b2e 0%, transparent 100%);
+  padding: calc(var(--space-6) * 1.5) var(--space-3) calc(var(--space-6) * 1.2);
+  background:
+    linear-gradient(180deg, rgba(10, 14, 26, 0.4) 0%, rgba(10, 14, 26, 1) 100%),
+    url('/images/hero-bg.png') no-repeat center center;
+  background-size: cover;
+  min-height: 55vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .home-hero__inner {

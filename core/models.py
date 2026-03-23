@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
+from django.conf import settings
 
 
 # ===========================================================
@@ -109,7 +110,12 @@ class Team(models.Model):
     season      = models.ForeignKey(Season, on_delete=models.CASCADE, related_name='teams')
     name        = models.CharField(max_length=100, verbose_name='Nombre del equipo')
     short_name  = models.CharField(max_length=10, verbose_name='Abreviatura', help_text='Ej: MAG')
-    logo_url    = models.URLField(blank=True)
+    logo_url    = models.URLField(blank=True, editable=False, verbose_name='URL del logo (auto)')
+    logo_upload = models.ImageField(
+        upload_to='tmp/', blank=True, null=True,
+        verbose_name='Logo del equipo',
+        help_text='Sube una imagen. Se optimizará y guardará automáticamente en Supabase.'
+    )
     manager_name = models.CharField(max_length=100, blank=True, verbose_name='Director técnico')
     # Cache de tabla de posiciones
     won         = models.PositiveSmallIntegerField(default=0, verbose_name='Ganados')
@@ -123,6 +129,22 @@ class Team(models.Model):
 
     def __str__(self):
         return f'{self.name} ({self.short_name})'
+
+    def save(self, *args, **kwargs):
+        if self.logo_upload and settings.SUPABASE_URL:
+            try:
+                from .image_upload import upload_image
+                self.logo_url = upload_image(
+                    image_file=self.logo_upload,
+                    name_hint=self.name or self.short_name,
+                    folder='logos',
+                )
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).error(f'Error subiendo logo de equipo: {e}')
+            finally:
+                self.logo_upload = None  # No guardar el archivo local en la BD
+        super().save(*args, **kwargs)
 
 
 # ===========================================================
@@ -139,16 +161,21 @@ class Player(models.Model):
         RIGHT = 'R', 'Derecho'
         LEFT  = 'L', 'Zurdo'
 
-    first_name   = models.CharField(max_length=100, verbose_name='Nombre')
-    last_name    = models.CharField(max_length=100, verbose_name='Apellido')
-    birth_date   = models.DateField(verbose_name='Fecha de nacimiento')
-    height_cm    = models.PositiveSmallIntegerField(null=True, blank=True, verbose_name='Altura (cm)')
-    weight_kg    = models.PositiveSmallIntegerField(null=True, blank=True, verbose_name='Peso (kg)')
-    bats_hand    = models.CharField(max_length=1, choices=BatsHand.choices, verbose_name='Batea')
-    throws_hand  = models.CharField(max_length=1, choices=ThrowsHand.choices, verbose_name='Lanza')
-    bio          = models.TextField(blank=True, verbose_name='Biografía')
-    photo_url    = models.URLField(blank=True)
-    created_at   = models.DateTimeField(auto_now_add=True)
+    first_name    = models.CharField(max_length=100, verbose_name='Nombre')
+    last_name     = models.CharField(max_length=100, verbose_name='Apellido')
+    birth_date    = models.DateField(verbose_name='Fecha de nacimiento')
+    height_cm     = models.PositiveSmallIntegerField(null=True, blank=True, verbose_name='Altura (cm)')
+    weight_kg     = models.PositiveSmallIntegerField(null=True, blank=True, verbose_name='Peso (kg)')
+    bats_hand     = models.CharField(max_length=1, choices=BatsHand.choices, verbose_name='Batea')
+    throws_hand   = models.CharField(max_length=1, choices=ThrowsHand.choices, verbose_name='Lanza')
+    bio           = models.TextField(blank=True, verbose_name='Biografía')
+    photo_url     = models.URLField(blank=True, editable=False, verbose_name='URL de foto (auto)')
+    photo_upload  = models.ImageField(
+        upload_to='tmp/', blank=True, null=True,
+        verbose_name='Foto del pelotero',
+        help_text='Sube una imagen. Se optimizará y guardará automáticamente en Supabase.'
+    )
+    created_at    = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'players'
@@ -158,6 +185,22 @@ class Player(models.Model):
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
+
+    def save(self, *args, **kwargs):
+        if self.photo_upload and settings.SUPABASE_URL:
+            try:
+                from .image_upload import upload_image
+                self.photo_url = upload_image(
+                    image_file=self.photo_upload,
+                    name_hint=f'{self.first_name}-{self.last_name}',
+                    folder='jugadores',
+                )
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).error(f'Error subiendo foto de jugador: {e}')
+            finally:
+                self.photo_upload = None  # No guardar el archivo local en la BD
+        super().save(*args, **kwargs)
 
 
 class Roster(models.Model):

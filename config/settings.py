@@ -176,3 +176,8 @@ if not DEBUG:
     SESSION_COOKIE_SECURE         = True
     CSRF_COOKIE_SECURE            = True
     SECURE_PROXY_SSL_HEADER       = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# ─── SUPABASE STORAGE ────────────────────────────────────────────
+SUPABASE_URL         = config('SUPABASE_URL',         default='')
+SUPABASE_SERVICE_KEY = config('SUPABASE_SERVICE_KEY', default='')
+SUPABASE_BUCKET      = config('SUPABASE_BUCKET',      default='databeisbol-assets')
