@@ -3,7 +3,7 @@ import LeaguesCarousel from '@/components/LeaguesCarousel';
 import PlayerSearch from '@/components/PlayerSearch';
 import UpcomingGames from '@/components/UpcomingGames';
 import StatsCounters from '@/components/StatsCounters';
-import TickerResultados from '@/components/TickerResultados';
+// TickerResultados eliminado
 import StandingsTable from '@/components/StandingsTable';
 import AnimatedSection from '@/components/AnimatedSection';
 import { Newspaper } from 'lucide-react';
@@ -28,9 +28,6 @@ export default async function HomePage() {
 
   return (
     <div className="home-page">
-      {/* ── TICKER DE RESULTADOS ── */}
-      <TickerResultados games={games} />
-
       {/* ── A. HERO SECTION (Imagen Limpia) ── */}
       <header className="home-hero animate-in fade-in" />
 

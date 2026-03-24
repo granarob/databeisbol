@@ -2092,14 +2092,8 @@ img {
 @media (max-width: 640px) {
   /* Hero */
   .home-hero {
-    height: 180px; /* Bannner más delgado en móvil */
-    width: 100vw !important;
-    position: relative;
-    left: 50%;
-    right: 50%;
-    margin-left: -50vw !important;
-    margin-right: -50vw !important;
-    border-radius: 0 !important;
+    height: 180px;
+    margin-left: calc(-50vw + 50%);
   }
 
   /* Buscador */
@@ -2167,21 +2161,24 @@ img {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow-x: clip; /* clip en vez de hidden para que no bloquee el stacking context */
+}
+
+/* Forzar que main y template wrapper no restrinjan el ancho */
+main,
+main > div {
+  overflow-x: clip;
 }
 
 .home-hero {
-  width: 100vw !important;
-  height: 320px; /* Altura fija para el banner imagen */
-  position: relative;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw !important;
-  margin-right: -50vw !important;
+  width: 100vw;
+  max-width: none !important;
+  height: 320px;
+  margin-left: calc(-50vw + 50%);
   background: url('/images/hero-bg.png') no-repeat center center;
   background-size: cover;
   border-radius: 0 !important;
-  overflow: hidden;
-  z-index: 10;
+  flex-shrink: 0;
 }
 
 /* ─── Hero Info (Texto debajo de imagen) ─── */
