@@ -28,8 +28,9 @@ export default async function HomePage() {
 
   return (
     <div className="home-page">
-      {/* ── A. HERO SECTION (Imagen Limpia) ── */}
-      <header className="home-hero animate-in fade-in" />
+      {/* ── A. HERO SECTION (Imagen Limpia en Posición Absoluta) ── */}
+      <header className="home-hero" />
+      <div className="home-hero-spacer" />
 
       {/* ── A2. HERO INFO (Texto debajo de la imagen) ── */}
       <section className="home-hero-info animate-in slide-up delay-200">
