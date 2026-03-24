@@ -31,21 +31,24 @@ export default async function HomePage() {
       {/* ── TICKER DE RESULTADOS ── */}
       <TickerResultados games={games} />
 
-      {/* ── A. HERO SECTION ── */}
-      <header className="home-hero animate-in fade-in">
-        <div className="container home-hero__inner">
-          <h1 className="animate-in slide-up delay-100">
+      {/* ── A. HERO SECTION (Imagen Limpia) ── */}
+      <header className="home-hero animate-in fade-in" />
+
+      {/* ── A2. HERO INFO (Texto debajo de la imagen) ── */}
+      <section className="home-hero-info animate-in slide-up delay-200">
+        <div className="container">
+          <h1>
             El futuro del béisbol<br />
             <span>comienza con un dato</span>
           </h1>
-          <p className="home-hero__subtitle animate-in slide-up delay-200">
+          <p className="home-hero-info__subtitle">
             Plataforma de estadísticas en tiempo real para ligas de formación
           </p>
-          <div className="animate-in slide-up delay-300 w-full max-w-[540px] mx-auto">
+          <div className="w-full max-w-[540px] mx-auto mt-8">
             <PlayerSearch />
           </div>
         </div>
-      </header>
+      </section>
 
       {/* ── LEAGUES CAROUSEL (se preserva intacto) ── */}
       <LeaguesCarousel leagues={leagues} recentGames={games} heroMode />
