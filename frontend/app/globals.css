@@ -85,6 +85,7 @@ body {
   font-size: var(--text-base);
   line-height: 1.618; /* φ — proporción áurea */
   min-height: 100vh;
+  overflow-x: hidden; /* Prevenir scroll por breakouts de 100vw */
 }
 
 /* ─── Skill 2: Focus visible global (WCAG 2.4.7 / 2.4.11) ─── */
@@ -2091,7 +2092,10 @@ img {
 @media (max-width: 640px) {
   /* Hero */
   .home-hero {
-    padding: var(--space-4) var(--space-2) var(--space-3);
+    padding: var(--space-4) 0 var(--space-3);
+    width: 100vw !important;
+    margin-left: calc(-50vw + 50%) !important;
+    border-radius: 0 !important;
   }
 
   .home-hero__title {
@@ -2180,7 +2184,14 @@ img {
   align-items: center;
   justify-content: center;
   position: relative;
-  width: 100%;
+  
+  /* Forzar ancho completo rompiendo contenedores si existieran */
+  width: 100vw !important;
+  max-width: 100vw !important;
+  margin-left: calc(-50vw + 50%) !important;
+  margin-right: calc(-50vw + 50%) !important;
+  border-radius: 0 !important;
+  overflow: hidden;
 }
 
 .home-hero__inner {
@@ -2767,6 +2778,13 @@ img {
   align-items: center;
   position: relative;
   z-index: 50;
+  
+  /* Breakout full width */
+  width: 100vw !important;
+  max-width: 100vw !important;
+  margin-left: calc(-50vw + 50%) !important;
+  margin-right: calc(-50vw + 50%) !important;
+  border-radius: 0 !important;
 }
 
 .ticker-label {
