@@ -1,5 +1,5 @@
 /* Tailwind CSS Directives */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Adobe+Clean:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -2165,10 +2165,7 @@ img {
 
 /* ─── Mobile General Responsive ─── */
 @media (max-width: 640px) {
-  /* Hero */
-  .home-hero {
-    height: 180px;
-  }
+  /* Hero styles are handled below now */
 
   .home-hero__search input {
     font-size: var(--text-sm);
@@ -2261,6 +2258,7 @@ main > div {
 }
 
 @media (max-width: 640px) {
+  .home-hero,
   .home-hero-spacer {
     height: 180px;
   }
@@ -2336,6 +2334,13 @@ main > div {
 .player-search-input::placeholder {
   color: var(--text-muted);
   text-overflow: ellipsis;
+}
+
+@media (max-width: 640px) {
+  .player-search-input {
+    padding: 0.8rem 2.5rem 0.8rem 2.2rem;
+    font-size: 0.9rem;
+  }
 }
 
 .player-search-input:focus {

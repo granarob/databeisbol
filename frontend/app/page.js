@@ -52,8 +52,8 @@ export default async function HomePage() {
               style={{ 
                 display: 'inline-flex', alignItems: 'center',
                 padding: '0.75rem 2rem', fontSize: '1rem', fontWeight: 600,
-                borderRadius: '999px', border: '2px solid rgba(255,255,255,0.4)',
-                color: '#ffffff', textDecoration: 'none',
+                borderRadius: '999px', border: '2px solid var(--border-strong)',
+                color: 'var(--text)', textDecoration: 'none',
                 transition: 'border-color 0.2s, background 0.2s'
               }}
             >
