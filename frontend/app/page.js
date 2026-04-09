@@ -42,6 +42,24 @@ export default async function HomePage() {
           <p className="home-hero-info__subtitle">
             Plataforma de estadísticas en tiempo real para ligas de formación
           </p>
+          {/* Adobe-style CTA button */}
+          <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <a href="/estadisticas" className="navbar-cta" style={{ padding: '0.75rem 2rem', fontSize: '1rem' }}>
+              Explorar Estadísticas
+            </a>
+            <a 
+              href="/comparar" 
+              style={{ 
+                display: 'inline-flex', alignItems: 'center',
+                padding: '0.75rem 2rem', fontSize: '1rem', fontWeight: 600,
+                borderRadius: '999px', border: '2px solid rgba(255,255,255,0.4)',
+                color: '#ffffff', textDecoration: 'none',
+                transition: 'border-color 0.2s, background 0.2s'
+              }}
+            >
+              🆚 Comparar Jugadores
+            </a>
+          </div>
           <div className="w-full max-w-[540px] mx-auto mt-8">
             <PlayerSearch />
           </div>

@@ -19,48 +19,73 @@ async function Navbar() {
   return (
     <nav className="navbar animate-in slide-up" role="navigation" aria-label="Navegación principal">
       <div className="container navbar-inner">
-        <a href="/" className="navbar-logo animate-in fade-in delay-100">
-          ⚾ BEISBOL<span style={{ color: 'var(--accent)' }}>DATA</span>
+        {/* Logo */}
+        <a href="/" className="navbar-logo">
+          ⚾ BEISBOL<span>DATA</span>
         </a>
 
         {/* Desktop Links */}
         <ul className="navbar-links">
-          <li className="animate-in fade-in delay-200">
+          <li>
             <a href="/">Inicio</a>
           </li>
 
-          {/* Ligas Dropdown */}
-          <li className="navbar-dropdown animate-in fade-in delay-300">
+          {/* Ligas Mega-Menu */}
+          <li className="navbar-dropdown">
             <button className="navbar-dropdown__trigger" aria-haspopup="true">
               Ligas <ChevronDown size={14} />
             </button>
             <div className="navbar-dropdown__menu" role="menu">
-              {leagues.map((l) => (
-                <a key={l.id} href={`/liga/${l.id}`} className="navbar-dropdown__item" role="menuitem">
-                  {l.name}
-                  {l.city && <span className="navbar-dropdown__city">{l.city}</span>}
+              {/* Column 1: League list */}
+              <div>
+                <div className="navbar-dropdown__col-title">Ligas Activas</div>
+                {leagues.map((l) => (
+                  <a key={l.id} href={`/liga/${l.id}`} className="navbar-dropdown__item" role="menuitem">
+                    {l.name}
+                    {l.city && <span className="navbar-dropdown__city">{l.city}</span>}
+                  </a>
+                ))}
+                {leagues.length === 0 && (
+                  <span className="navbar-dropdown__empty">Cargando ligas...</span>
+                )}
+              </div>
+              {/* Column 2: Quick links */}
+              <div>
+                <div className="navbar-dropdown__col-title">Acceso Rápido</div>
+                <a href="/estadisticas" className="navbar-dropdown__item">
+                  🏆 Líderes de Estadísticas
+                  <span className="navbar-dropdown__city">Los mejores promedios de la temporada</span>
                 </a>
-              ))}
-              {leagues.length === 0 && (
-                <span className="navbar-dropdown__empty">Cargando ligas...</span>
-              )}
+                <a href="/equipos" className="navbar-dropdown__item">
+                  🛡️ Equipos
+                  <span className="navbar-dropdown__city">Todos los equipos registrados</span>
+                </a>
+                <a href="/calendario" className="navbar-dropdown__item">
+                  📅 Calendario
+                  <span className="navbar-dropdown__city">Próximos juegos programados</span>
+                </a>
+                <a href="/resultados" className="navbar-dropdown__item">
+                  📊 Resultados
+                  <span className="navbar-dropdown__city">Juegos finalizados</span>
+                </a>
+              </div>
             </div>
           </li>
 
-          <li className="animate-in fade-in delay-400">
+          <li>
             <a href="/estadisticas">Líderes</a>
           </li>
-          <li className="animate-in fade-in delay-400">
+          <li>
             <a href="/calendario">Calendario</a>
           </li>
-          <li className="animate-in fade-in delay-400">
+          <li>
             <a href="/resultados">Resultados</a>
           </li>
-          <li className="animate-in fade-in delay-500">
+          <li>
             <a href="/equipos">Equipos</a>
           </li>
-          <li className="animate-in fade-in delay-500">
-            <a href="/comparar" style={{ color: 'var(--accent)' }}>🆚 Comparar</a>
+          <li>
+            <a href="/comparar">🆚 Comparar</a>
           </li>
         </ul>
 

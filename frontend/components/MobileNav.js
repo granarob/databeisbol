@@ -14,6 +14,7 @@ export default function MobileNav({ leagues = [] }) {
         onClick={() => setOpen(!open)}
         aria-label={open ? 'Cerrar menú' : 'Abrir menú'}
         aria-expanded={open}
+        style={{ color: 'var(--text)' }}
       >
         {open ? <X size={22} /> : <Menu size={22} />}
       </button>
@@ -26,6 +27,11 @@ export default function MobileNav({ leagues = [] }) {
             role="navigation"
             aria-label="Menú móvil"
           >
+            {/* Mobile logo */}
+            <a href="/" className="navbar-logo" style={{ marginBottom: '1rem', fontSize: '1.1rem' }} onClick={() => setOpen(false)}>
+              ⚾ BEISBOL<span>DATA</span>
+            </a>
+
             <a href="/" className="mobile-menu__link" onClick={() => setOpen(false)}>
               Inicio
             </a>
