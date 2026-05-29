@@ -5,7 +5,7 @@ import MobileNav from '@/components/MobileNav';
 import { ChevronDown } from 'lucide-react';
 
 export const metadata = {
-  title: 'BeisbolData — Estadísticas de Béisbol Menor Venezuela',
+  title: 'PlayballData — Estadísticas de Béisbol Menor Venezuela',
   description: 'Plataforma de estadísticas en tiempo real, líderes y resultados de las ligas de béisbol menor en Venezuela.',
 };
 
@@ -21,7 +21,7 @@ async function Navbar() {
       <div className="container navbar-inner">
         {/* Logo */}
         <a href="/" className="navbar-logo">
-          ⚾ BEISBOL<span>DATA</span>
+          ⚾ PLAYBALL<span>DATA</span>
         </a>
 
         {/* Desktop Links */}
@@ -106,7 +106,7 @@ function Footer() {
           {/* Brand */}
           <div className="footer-col">
             <a href="/" className="footer-brand">
-              ⚾ BEISBOL<span>DATA</span>
+              ⚾ PLAYBALL<span>DATA</span>
             </a>
             <p className="footer-desc">
               Plataforma de estadísticas en tiempo real para ligas de béisbol menor en Venezuela.
@@ -155,7 +155,7 @@ function Footer() {
 
         {/* Bottom bar */}
         <div className="footer-bottom">
-          <p>© {new Date().getFullYear()} <strong>BeisbolData</strong> — Todos los derechos reservados.</p>
+          <p>© {new Date().getFullYear()} <strong>PlayballData</strong> — Todos los derechos reservados.</p>
           <p className="footer-bottom__minor">Los datos de menores de edad son protegidos según las normativas vigentes.</p>
         </div>
       </div>

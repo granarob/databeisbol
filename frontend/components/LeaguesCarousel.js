@@ -99,7 +99,7 @@ function HeroLeagueCard({ league, index, recentGames }) {
           <div className="hero-bbcard__footer">
             <div className="hero-bbcard__footer-logo">
               <div className="logo-circle">BB</div>
-              <span>BEISBOLDATA</span>
+              <span>PLAYBALLDATA</span>
             </div>
             <div className="hero-bbcard__footer-live">
               <span className="live-dot"></span> LIVE
