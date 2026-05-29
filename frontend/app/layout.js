@@ -89,10 +89,7 @@ async function Navbar() {
           </li>
         </ul>
 
-        {/* Desktop CTA */}
-        <a href="/admin-panel" className="navbar-cta animate-in fade-in delay-500">
-          Registrar Academia
-        </a>
+
 
         {/* Mobile Hamburger */}
         <MobileNav leagues={leagues} />

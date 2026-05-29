@@ -73,11 +73,7 @@ export default function MobileNav({ leagues = [] }) {
               🆚 Comparar
             </a>
 
-            <div className="mobile-menu__cta-wrap">
-              <a href="/admin-panel" className="navbar-cta" onClick={() => setOpen(false)}>
-                Registrar Academia
-              </a>
-            </div>
+
           </nav>
         </div>
       )}
