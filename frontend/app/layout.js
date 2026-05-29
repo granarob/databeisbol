@@ -109,7 +109,7 @@ function Footer() {
               ⚾ PLAYBALL<span>DATA</span>
             </a>
             <p className="footer-desc">
-              Plataforma de estadísticas en tiempo real para ligas de béisbol menor en Venezuela.
+              Plataforma de estadísticas para ligas de béisbol menor y softball en Venezuela.
             </p>
           </div>
 
