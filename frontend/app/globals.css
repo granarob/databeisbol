@@ -8,14 +8,14 @@
 /* ─── TOKENS — Adobe-style Light Theme ──────────────────── */
 :root {
   /* ── Backgrounds ── */
-  --bg: #f0f2f5;
+  --bg: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
   --bg-light: #f8f8f8;
   --bg-alt: #f5f5f5;
   --bg-dark: #1b2b38;
   --bg-dark2: #0d1117;
-  --bg-card: #ffffff;
+  --bg-card: rgba(255, 255, 255, 0.6);
   --bg-card-dark: rgba(20, 30, 48, 0.97);
-  --bg-elevated: #f0f0f0;
+  --bg-elevated: rgba(255, 255, 255, 0.8);
   --bg-gradient: linear-gradient(160deg, #13293d 0%, #1a1a3e 40%, #2d1b69 70%, #1e3a5f 100%);
 
   /* ── Brand / Accent ── */
@@ -299,15 +299,18 @@ img {
 /* ─── CARD ────────────────────────────────────────────── */
 .card {
   background: var(--bg-card);
-  border: 1px solid var(--border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: var(--radius-xl);
   overflow: hidden;
-  box-shadow: var(--shadow);
-  transition: box-shadow var(--transition), transform var(--transition);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.05);
+  transition: box-shadow var(--transition), transform var(--transition), border-color var(--transition);
 }
 
 .card:hover {
-  box-shadow: var(--shadow-md);
+  border-color: rgba(20, 115, 230, 0.5);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.08), 0 0 20px rgba(20, 115, 230, 0.15);
   transform: translateY(-2px);
 }
 
@@ -466,17 +469,22 @@ img {
 /* ─── SCORE CARD (Juego) ──────────────────────────────── */
 .game-card {
   background: var(--bg-card);
-  border: 1px solid var(--border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: var(--radius-lg);
   padding: 1rem 1.25rem;
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
-  transition: border-color var(--transition);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.05);
+  transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
 }
 
 .game-card:hover {
-  border-color: #2d4060;
+  border-color: rgba(20, 115, 230, 0.5);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.08), 0 0 20px rgba(20, 115, 230, 0.15);
+  transform: translateY(-2px);
 }
 
 .game-card-header {
@@ -542,17 +550,21 @@ img {
 /* ─── PLAYER CARD ─────────────────────────────────────── */
 .player-card {
   background: var(--bg-card);
-  border: 1px solid var(--border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: var(--radius-lg);
   padding: 1.25rem;
   display: flex;
   gap: 1rem;
-  transition: border-color var(--transition), transform var(--transition);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.05);
+  transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
   cursor: pointer;
 }
 
 .player-card:hover {
-  border-color: var(--accent-dim);
+  border-color: rgba(20, 115, 230, 0.5);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.08), 0 0 20px rgba(20, 115, 230, 0.15);
   transform: translateY(-2px);
 }
 
@@ -615,7 +627,9 @@ img {
 /* ─── TEAM CARD ───────────────────────────────────────── */
 .team-card {
   background: var(--bg-card);
-  border: 1px solid var(--border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: var(--radius-lg);
   padding: 1.5rem;
   display: flex;
@@ -623,12 +637,14 @@ img {
   align-items: center;
   gap: 0.75rem;
   text-align: center;
-  transition: border-color var(--transition), transform var(--transition);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.05);
+  transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
   cursor: pointer;
 }
 
 .team-card:hover {
-  border-color: var(--accent-dim);
+  border-color: rgba(20, 115, 230, 0.5);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.08), 0 0 20px rgba(20, 115, 230, 0.15);
   transform: translateY(-3px);
 }
 
