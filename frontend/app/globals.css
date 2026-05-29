@@ -1951,17 +1951,19 @@ img {
   transform: rotate(180deg);
 }
 
-/* Adobe-style mega-menu dropdown — white, multi-column */
+/* Desktop mega-menu dropdown — Glowing Neon glassmorphism */
 .navbar-dropdown__menu {
   position: absolute;
   top: 100%;
   left: 50%;
   transform: translateX(-50%) translateY(8px);
   min-width: 620px;
-  background: var(--megamenu-bg);
-  border: 1px solid var(--border);
+  background: rgba(2, 5, 15, 0.95);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(0, 210, 255, 0.2);
   border-radius: var(--radius-lg);
-  box-shadow: 0 8px 40px rgba(0,0,0,0.15);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), inset 0 0 12px rgba(0, 210, 255, 0.1);
   padding: 1.5rem;
   opacity: 0;
   visibility: hidden;
@@ -2085,7 +2087,7 @@ img {
   to { opacity: 1; }
 }
 
-/* Mobile menu — white slide-out */
+/* Mobile menu — Glass/Neon dark slide-out */
 .mobile-menu {
   position: fixed;
   top: 0;
@@ -2093,8 +2095,10 @@ img {
   width: min(360px, 90vw);
   height: 100vh;
   height: 100dvh;
-  background: #ffffff;
-  border-left: 1px solid var(--border);
+  background: var(--bg-card-dark);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-left: 1px solid rgba(0, 210, 255, 0.2);
   padding: 1.5rem;
   padding-top: 2rem;
   display: flex;
@@ -2103,7 +2107,7 @@ img {
   overflow-y: auto;
   z-index: 10000;
   animation: slideInRight 0.25s ease;
-  box-shadow: -8px 0 32px rgba(0,0,0,0.1);
+  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(0, 210, 255, 0.1);
 }
 
 @keyframes slideInRight {
