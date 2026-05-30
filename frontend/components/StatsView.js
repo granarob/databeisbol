@@ -18,6 +18,11 @@ export default function StatsView({ initialLeaders, leagues, categories, seasons
     season: seasons.length > 0 ? seasons[0].id : ''
   });
 
+  // Filtrar categorías según la liga seleccionada
+  const filteredCategories = filters.league
+    ? categories.filter((c) => String(c.league_id ?? c.league) === filters.league)
+    : categories;
+
   const handleFilterChange = (name, value) => {
     setFilters(prev => ({ ...prev, [name]: value }));
   };
@@ -104,13 +109,13 @@ export default function StatsView({ initialLeaders, leagues, categories, seasons
 
           {/* Category Selector */}
           <div className="relative min-w-[150px]">
-             <select 
+            <select 
               value={filters.category}
               onChange={(e) => handleFilterChange('category', e.target.value)}
               className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-accent appearance-none cursor-pointer"
             >
               <option value="">Todas las Categorías</option>
-              {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              {filteredCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" />
           </div>
