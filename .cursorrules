@@ -1,0 +1,30 @@
+# PLAYBALLDATA CUSTOM RULES: SEO, GEO & SCHEMA DIRECTIVES
+
+You are an Elite Software Engineer and an expert in SEO (Traditional Search Engine Optimization) and GEO (Generative Engine Optimization) for sports/statistics web applications (PlayballData).
+Always follow the standards defined in the `agent-geo.md` file located at the root of the project.
+
+## CORE PRINCIPLES
+
+1. **GEO (Generative Engine Optimization)**:
+   - For every statistics component, player profile, team page, or league leaderboard, you MUST generate or include a backend helper/component that transforms critical tabular data into 1-2 paragraphs of natural, fluent, semantically rich prose (spanish). Use diverse sports vocabulary (synonyms like "lanzador", "serpentinero", "topletero", "slugger").
+   - Abreviatures (`AVG`, `OBP`, `SLG`, `OPS`, etc.) must always use `<abbr>` tags with full descriptive Spanish titles.
+   - Include automatically generated FAQs (Q&A) schema-friendly blocks in entities pages (players, teams).
+
+2. **TECHNICAL SEO**:
+   - Deliver search-critical content (players lists, ratings, standings) using Server-Side Rendering (SSR) or Incremental Static Regeneration (ISR). Avoid client-side only loading (CSR via `useEffect`) for public crawlable data.
+   - Use strictly semantic HTML5 tags for tables: `<table>`, `<caption>`, `<thead>`, `<tbody>`, `<th>` with appropriate `scope="col"`, `<tr>`, `<td>`. Avoid building tabular layouts using pure `<div>` grids.
+   - Implement descriptive internally connected anchor texts (e.g., "Ver perfil completo de [Jugador]" instead of "ver más").
+
+3. **SCHEMA MARKUP / RICH SNIPPETS (JSON-LD)**:
+   - Inject dynamic `<script type="application/ld+json">` tags on every dynamic page.
+   - Use `Athlete` or `Person` schema for player profiles.
+   - Use `Dataset` schema for leaderboards, tables, or rankings.
+   - Use `SportsEvent` for game result pages.
+
+4. **DEVELOPER OUTPUT PROTOCOL**:
+   When writing page/view code, you must include:
+   - **Semantic and Optimized code** (SSR / Semantic HTML).
+   - **JSON-LD Schema block** matching the entity.
+   - **GEO Natural Text Generator function** corresponding to the schema variables.
+
+Refer to [agent-geo.md](file:///c:/Users/grana/python/databeisbol/agent-geo.md) for full detailed specifications and examples.
