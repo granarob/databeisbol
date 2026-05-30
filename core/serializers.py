@@ -36,11 +36,40 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 class LeagueSerializer(serializers.ModelSerializer):
     admin_name = serializers.CharField(source='admin.full_name', read_only=True)
+    teams_count = serializers.SerializerMethodField()
+    games_count = serializers.SerializerMethodField()
+    points = serializers.SerializerMethodField()
+    rating = serializers.SerializerMethodField()
 
     class Meta:
         model  = League
-        fields = ['id', 'name', 'country', 'city', 'logo_url', 'admin', 'admin_name', 'created_at']
+        fields = [
+            'id', 'name', 'country', 'city', 'logo_url', 'admin', 'admin_name', 
+            'teams_count', 'games_count', 'points', 'rating', 'created_at'
+        ]
         read_only_fields = ['created_at']
+
+    def get_teams_count(self, obj):
+        return Team.objects.filter(category__league=obj).count()
+
+    def get_games_count(self, obj):
+        return Game.objects.filter(category__league=obj).count()
+
+    def get_points(self, obj):
+        from django.db.models import Sum
+        games = Game.objects.filter(category__league=obj, status='finished')
+        home_sum = games.aggregate(s=Sum('home_score'))['s'] or 0
+        away_sum = games.aggregate(s=Sum('away_score'))['s'] or 0
+        return home_sum + away_sum
+
+    def get_rating(self, obj):
+        from django.db.models import Sum
+        stats = StatsBatting.objects.filter(game__category__league=obj)
+        total_h = stats.aggregate(s=Sum('h'))['s'] or 0
+        total_ab = stats.aggregate(s=Sum('ab'))['s'] or 0
+        if total_ab > 0:
+            return f".{int(round((total_h / total_ab) * 1000)):03d}"
+        return ".000"
 
 
 class SeasonSerializer(serializers.ModelSerializer):

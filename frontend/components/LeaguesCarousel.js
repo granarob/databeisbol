@@ -45,12 +45,11 @@ function HeroLeagueCard({ league, index, recentGames }) {
   const IconComp = LEAGUE_ICONS[index % LEAGUE_ICONS.length];
   const [hovered, setHovered] = useState(false);
 
-  // Stats dummy (podrían venir de la BD)
   const stats = [
-    { label: 'EQUIPOS', val: league.teams_count || '8', icon: <Trophy size={14} /> },
-    { label: 'JUEGOS', val: league.games_count || '120', icon: <Zap size={14} /> },
-    { label: 'PUNTOS', val: league.points || '450', icon: <Target size={14} /> },
-    { label: 'RATING', val: '1.000', icon: <Star size={14} /> },
+    { label: 'EQUIPOS', val: league.teams_count !== undefined ? league.teams_count : '0', icon: <Trophy size={14} /> },
+    { label: 'JUEGOS', val: league.games_count !== undefined ? league.games_count : '0', icon: <Zap size={14} /> },
+    { label: 'PUNTOS', val: league.points !== undefined ? league.points : '0', icon: <Target size={14} /> },
+    { label: 'RATING', val: league.rating !== undefined ? league.rating : '.000', icon: <Star size={14} /> },
   ];
 
   return (
