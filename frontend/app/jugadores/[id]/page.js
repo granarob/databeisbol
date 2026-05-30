@@ -1,6 +1,8 @@
 import { getPlayer, getPlayerStats, getPlayerGameLog } from '@/lib/api';
 import { notFound } from 'next/navigation';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata({ params }) {
     const player = await getPlayer(params.id);
     if (!player) return { title: 'Jugador no encontrado' };

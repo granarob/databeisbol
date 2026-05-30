@@ -8,6 +8,8 @@ import StandingsTable from '@/components/StandingsTable';
 import AnimatedSection from '@/components/AnimatedSection';
 import { Newspaper } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default async function HomePage() {
   let leagues = [], games = [], upcoming = [], summary = null;
 

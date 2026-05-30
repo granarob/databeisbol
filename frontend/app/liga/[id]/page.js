@@ -2,15 +2,17 @@ import { getLeague, getTeams, getGames, getBattingLeaders, getPitchingLeaders, g
 import LeagueDashboard from '@/components/LeagueDashboard';
 import { notFound } from 'next/navigation';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata({ params }) {
   const { id } = await params;
   let league = null;
   try {
     league = await getLeague(id);
   } catch {}
-  if (!league) return { title: 'Liga no encontrada — BeisbolData' };
+  if (!league) return { title: 'Liga no encontrada — PlayballData' };
   return {
-    title: `${league.name} — BeisbolData`,
+    title: `${league.name} — PlayballData`,
     description: `Estadísticas, equipos y calendario de ${league.name}.`,
   };
 }
