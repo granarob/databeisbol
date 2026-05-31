@@ -109,7 +109,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 
 class TeamViewSet(viewsets.ModelViewSet):
-    queryset           = Team.objects.select_related('category', 'season').order_by('name')
+    queryset           = Team.objects.select_related('category', 'season').prefetch_related('rosters__player').order_by('name')
     serializer_class   = TeamSerializer
     permission_classes = [IsAdminOrReadOnly, IsLeagueOwnerOrSuperAdmin]
     filter_backends    = [filters.SearchFilter]
