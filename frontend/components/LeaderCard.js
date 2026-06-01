@@ -40,12 +40,12 @@ export default function LeaderCard({ title, players = [], statKey, format, rever
               >
                 {/* Progress Bar Background */}
                 <div 
-                  className="absolute bottom-0 left-0 h-0.5 bg-accent/20 transition-all group-hover:bg-accent/40" 
+                  className="absolute bottom-0 left-0 h-[3px] bg-gradient-to-r from-accent/40 via-accent/20 to-transparent transition-all group-hover:from-accent/60" 
                   style={{ width: `${percentage}%` }}
                 />
 
                 <div className="flex items-center gap-3 relative z-10">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bebas text-lg ${idx === 0 ? 'bg-accent text-black' : 'bg-black/40 text-text-muted border border-white/5'}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bebas text-lg tracking-wider ${idx === 0 ? 'bg-accent text-black shadow-[0_0_10px_rgba(0,210,255,0.4)]' : 'bg-black/40 text-text-muted border border-white/5'}`}>
                     {idx + 1}
                   </div>
                   
@@ -53,13 +53,13 @@ export default function LeaderCard({ title, players = [], statKey, format, rever
                     <p className="text-sm font-bold truncate group-hover:text-accent transition-colors">
                       {p.player__first_name} {p.player__last_name}
                     </p>
-                    <div className="flex items-center text-[10px] text-text-muted uppercase tracking-tighter gap-1">
-                      <Shield className="w-2.5 h-2.5 opacity-50" />
+                    <div className="flex items-center text-[10px] text-text-muted uppercase tracking-wider gap-1 font-semibold">
+                      <Shield className="w-2.5 h-2.5 opacity-60 text-accent" />
                       {p.team__name}
                     </div>
                   </div>
                   
-                  <div className="text-xl font-bebas tracking-tighter text-white">
+                  <div className="text-xl font-bebas tracking-wider text-white">
                     {formatValue(val)}
                   </div>
                 </div>

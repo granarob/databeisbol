@@ -57,6 +57,8 @@
   --shadow-md: 0 12px 40px 0 rgba(0, 0, 0, 0.55);
   --shadow-lg: 0 20px 50px 0 rgba(0, 0, 0, 0.7);
   --shadow-navbar: 0 1px 0 rgba(0, 210, 255, 0.15);
+  --shadow-neon: 0 0 15px rgba(0, 210, 255, 0.18);
+  --shadow-neon-strong: 0 0 25px rgba(0, 210, 255, 0.35);
   --transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 
   /* ── Typography scale ── */
@@ -3057,3 +3059,150 @@ main > div {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
+
+/* ────────────────────────────────────────────────────────
+   ─── MODERN DESIGN OVERLAYS & GLOWS (frontend-design) ───
+   ──────────────────────────────────────────────────────── */
+
+/* Glassmorphism Hover Effects & Neon Shadows */
+.card, 
+.news-card, 
+.team-card, 
+.bento-card, 
+.upcoming-card,
+.calendar-game-row,
+.bg-surface.border.border-white\/5 {
+  transition: border-color var(--transition), transform var(--transition), box-shadow var(--transition), background-color var(--transition) !important;
+}
+
+.card:hover, 
+.news-card:hover, 
+.team-card:hover, 
+.bento-card:hover,
+.upcoming-card:hover,
+.calendar-game-row:hover,
+.bg-surface.border.border-white\/5:hover {
+  border-color: rgba(0, 210, 255, 0.4) !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.55), var(--shadow-neon) !important;
+  transform: translateY(-4px) !important;
+}
+
+/* Modern Pill Buttons & High-End CTAs */
+.navbar-cta, 
+.navbar-cta-primary,
+button.navbar-cta {
+  border-radius: 9999px !important;
+  background: linear-gradient(135deg, var(--accent) 0%, #00a5cc 100%) !important;
+  box-shadow: 0 4px 15px rgba(0, 210, 255, 0.2) !important;
+  transition: all var(--transition) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.5px !important;
+  border: none !important;
+}
+
+.navbar-cta:hover, 
+.navbar-cta-primary:hover,
+button.navbar-cta:hover {
+  box-shadow: 0 6px 22px rgba(0, 210, 255, 0.35), var(--shadow-neon-strong) !important;
+  transform: translateY(-2px) !important;
+  filter: brightness(1.1);
+}
+
+/* Premium Form Elements & Select Dropdowns */
+select.filter-select, 
+select, 
+input[type="text"] {
+  border-radius: var(--radius) !important;
+  background: rgba(2, 5, 15, 0.6) !important;
+  border: 1px solid rgba(0, 210, 255, 0.15) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  color: var(--text) !important;
+  transition: border-color var(--transition), box-shadow var(--transition), background-color var(--transition) !important;
+}
+
+select.filter-select:hover, 
+select:hover, 
+input[type="text"]:hover {
+  border-color: rgba(0, 210, 255, 0.45) !important;
+  background: rgba(2, 5, 15, 0.8) !important;
+}
+
+select.filter-select:focus, 
+select:focus, 
+input[type="text"]:focus {
+  border-color: var(--accent) !important;
+  box-shadow: var(--shadow-neon) !important;
+  background: rgba(2, 5, 15, 0.9) !important;
+  outline: none !important;
+}
+
+/* Clean up select option backgrounds */
+select option {
+  background-color: #02050f !important;
+  color: var(--text) !important;
+}
+
+/* Alternating Row Colors & High contrast Headers in Tables */
+.data-table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  width: 100% !important;
+}
+
+.data-table tbody tr {
+  transition: background-color 0.2s ease !important;
+}
+
+.data-table tbody tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.015) !important;
+}
+
+.data-table tbody tr:hover {
+  background-color: rgba(0, 210, 255, 0.04) !important;
+}
+
+.data-table th {
+  border-bottom: 2px solid rgba(0, 210, 255, 0.18) !important;
+  padding: 14px 16px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  font-size: var(--text-xs) !important;
+  color: var(--text-muted) !important;
+}
+
+.data-table td {
+  padding: 14px 16px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
+}
+
+/* Bento Grid Spacing Polish */
+.bento-grid {
+  gap: 1.25rem !important;
+}
+
+.bento-card {
+  border: 1px solid rgba(0, 210, 255, 0.15) !important;
+}
+
+.bento-card:hover {
+  border-color: rgba(0, 210, 255, 0.45) !important;
+}
+
+/* Home Hero Overlays & Glows */
+.home-hero-info {
+  position: relative;
+  overflow: hidden;
+}
+
+.home-hero-info::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0, 210, 255, 0.3), transparent);
+}
+
